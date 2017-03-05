@@ -6,7 +6,7 @@ function movStruct = withinFile_withinFrame_lucasKanade(...
 
 nSlice = numel(movStruct.slice);
 nChannel = numel(movStruct.slice(1).channel);
-isGpu = gpuDeviceCount>0;
+isGpu = 0; %gpuDeviceCount>0;
 if isGpu
     gpu = gpuDevice;
     pctRunOnAll reset(gpuDevice);

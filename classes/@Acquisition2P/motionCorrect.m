@@ -33,6 +33,9 @@ else
     obj.motionCorrectionFunction = motionCorrectionFunction;
 end
 
+motionCorrectionFunctionName = func2str(motionCorrectionFunction);
+fprintf('\nMotion-correction function: %s\n',motionCorrectionFunctionName)
+
 if isempty(obj.acqName)
     error('Acquisition Name Unspecified'),
 end
@@ -41,7 +44,7 @@ if ~exist('writeDir', 'var') || isempty(writeDir) %Use Corrected in Default Dire
     if isempty(obj.defaultDir)
         error('Default Directory unspecified'),
     else
-        writeDir = [obj.defaultDir filesep 'Corrected'];
+        writeDir = [obj.defaultDir,'Corrected'];
     end
 end
 
@@ -57,6 +60,9 @@ if isempty(obj.motionRefMovNum)
     end
 end
 
+% Collecting movie info
+[nSlices, nChannels] = collectMovieInfo(movNum)
+
 %% Load movies and motion correct
 %Calculate Number of movies and arrange processing order so that
 %reference is first
@@ -67,9 +73,12 @@ end
 movieOrder = 1:nMovies;
 movieOrder([1 obj.motionRefMovNum]) = [obj.motionRefMovNum 1];
 
+obj.motionCorrectionDone = false;
+
 %Load movies one at a time in order, apply correction, and save as
 %split files (slice and channel)
 for movNum = movieOrder
+
     fprintf('\nLoading Movie #%03.0f of #%03.0f\n',movNum,nMovies),
     [mov, scanImageMetadata] = obj.readRaw(movNum,'single');
     if obj.binFactor > 1
@@ -80,7 +89,7 @@ for movNum = movieOrder
     fprintf('Line Shift Correcting Movie #%03.0f of #%03.0f\n', movNum, nMovies),
     mov = correctLineShift(mov);
     try
-        [movStruct, nSlices, nChannels] = parseScanimageTiff(mov, scanImageMetadata);
+        [movStruct, nSlices, nChannels] = parseScanimageTiff(mov, scanImageMetadata, movNum);
     catch
         error('parseScanimageTiff failed to parse metadata'),
     end
@@ -93,9 +102,23 @@ for movNum = movieOrder
     % Apply motion correction and write separate file for each
     % slice\channel:
     fprintf('Applying Motion Correction for Movie #%03.0f of #%03.0f\n', movNum, nMovies),
-    movStruct = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+    
+    switch motionCorrectionFunctionName
+        case 'withinFile_fullFrame_fft'
+            [obj, movStruct] = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+        case 'withinFile_withinFrame_lucasKanade'
+            movStruct = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+    end
+    
     for nSlice = 1:nSlices
         for nChannel = 1:nChannels
+            % check motion correction has been done already
+            movFileName = feval(namingFunction,obj.acqName, nSlice, nChannel, movNum);
+            if exist([writeDir,filesep,movFileName],'file')
+                fprintf('\nSkipping motion correction:\n%s has been motion-corrected already\n',movFileName)
+                continue
+            end
+            
             % Create movie fileName and save in acq object
             movFileName = feval(namingFunction,obj.acqName, nSlice, nChannel, movNum);
             obj.correctedMovies.slice(nSlice).channel(nChannel).fileName{movNum} = fullfile(writeDir,movFileName);
@@ -114,16 +137,20 @@ for movNum = movieOrder
             end
         end
     end
+    obj.motionCorrectionDone = true;
+    obj.save;
 end
 
-% Store SI metadata in acq object
-obj.metaDataSI = scanImageMetadata;
+if obj.motionCorrectionDone
+    % Store SI metadata in acq object
+    obj.metaDataSI = scanImageMetadata;
 
-%Assign acquisition to a variable with its own name, and write to same
-%directory
-eval([obj.acqName ' = obj;']),
-save(fullfile(obj.defaultDir, obj.acqName), obj.acqName)
-display('Motion Correction Completed!')
+    %Assign acquisition to a variable with its own name, and write to same
+    %directory
+    eval([obj.acqName ' = obj;']),
+    save(fullfile(obj.defaultDir, obj.acqName), obj.acqName)
+    display('Motion Correction Completed!')
+end
 
 end
 
@@ -131,4 +158,40 @@ function movFileName = defaultNamingFunction(acqName, nSlice, nChannel, movNum)
 
 movFileName = sprintf('%s_Slice%02.0f_Channel%02.0f_File%03.0f.tif',...
     acqName, nSlice, nChannel, movNum);
+end
+
+function [nSlices, nChannels] = collectMovieInfo(movNum)
+    fprintf('Collecting movie info.\n')
+    [~, siStruct] = obj.readRaw(movNum,'single');
+    % Check for scanimage version before extracting metainformation
+    if isfield(siStruct, 'SI4')
+        siStruct = siStruct.SI4;
+        % Nomenclature: frames and slices refer to the concepts used in
+        % ScanImage.
+        fZ              = siStruct.fastZEnable;
+        nChannels       = numel(siStruct.channelsSave);
+        nSlices         = siStruct.stackNumSlices + (fZ*siStruct.fastZDiscardFlybackFrames); % Slices are acquired at different locations (e.g. depths).
+    elseif isfield(siStruct, 'SI') % scanimage 2015 file
+        fZ              = siStruct.SI.hFastZ.enable;
+        nChannels       = length(siStruct.SI.hChannels.channelSave);
+        nSlices = siStruct.SI.hFastZ.numVolumes + (fZ*siStruct.SI.hFastZ.discardFlybackFrames); 
+        if nSlices ~=1
+            warning('MultiSlice reading of SI-2015 files has not been bug checked!'),
+        end
+    elseif isfield(siStruct,'SI5')
+         siStruct = siStruct.SI5;
+        % Nomenclature: frames and slices refer to the concepts used in
+        % ScanImage.
+        fZ              = siStruct.fastZEnable;
+        nChannels       = numel(siStruct.channelsSave);
+        nSlices         = siStruct.stackNumSlices + (fZ*siStruct.fastZDiscardFlybackFrames); % Slices are acquired at different locations (e.g. depths).
+    elseif isfield(siStruct, 'software') && siStruct.software.version < 4 %ie it's a scanimage 3 file
+        fZ = 0;
+        nSlices = 1;
+        nChannels = siStruct.acq.numberOfChannelsSave;
+    else
+        error('Movie is from an unidentified scanimage version, or metadata is improperly formatted'),
+    end
+    fprintf('%d Channels and %d Slices were found.\n',nChannels,nSlices)
+    fprintf('Combining %d Movies into one tiff file.\n',nChannels,nSlices)
 end

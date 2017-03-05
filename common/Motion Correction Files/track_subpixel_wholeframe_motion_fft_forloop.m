@@ -6,6 +6,14 @@ z = size(movref, 3);
 xshifts=zeros(1,z);
 yshifts=zeros(1,z);
 
+if 1
+    % remove the lateral dark areas
+    numPix2Remove = 32;
+    pick = numPix2Remove+1:size(movref,2)-numPix2Remove;
+    movref = movref(:,pick,:);
+    refframe = refframe(:,pick,:);
+end
+
 % It is safer to use the square root of the fluorescence intensities to
 % minimize the effect of bright calcium transients. Not necessary if a
 % non-calcium-dependent channel is used:
