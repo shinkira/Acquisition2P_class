@@ -13,10 +13,10 @@ sel.slice = sliceNum;
 % Set up roiInfo: The roiInfo property of the sel object automatically
 % points to the acq object, so whatever we do to sel get's propagated to
 % acq.
+[h, w, ~] = size(img);
 if ~isfield(sel.roiInfo, 'roi') || isempty(sel.roiInfo.roi)
     % If this is acq object has not been processed before, initialize
     % fields:
-    [h, w, ~] = size(img);
     sel.roiInfo.hasBeenViewed = zeros(h, w);
     sel.roiInfo.roi = struct('id', [], 'group', [], 'indBody', [], ...
         'indNeuropil', [], 'subCoef', []);
@@ -74,6 +74,17 @@ if size(img, 3) == 1
     img = imadjust(img);
 end
 sel.disp.img = img;
+
+if 0
+    % change the file name depending on the computer
+    temp = sel.roiInfo.covFile.fileName;
+    ind = strfind(temp,'SK');
+    sel.roiInfo.covFile.fileName = ['C:\Users\Shin\Documents\MATLAB\ShinDataAll\Imaging\',temp(ind:end)];
+
+    temp = acq.indexedMovie.slice(sliceNum).channel(channelNum).fileName;
+    ind = strfind(temp,'SK');
+    acq.indexedMovie.slice(sliceNum).channel(channelNum).fileName = ['C:\Users\Shin\Documents\MATLAB\ShinDataAll\Imaging\',temp(ind:end)];
+end
 
 % Create memory map of pixCov file:
 if ~exist(sel.roiInfo.covFile.fileName, 'file')
@@ -197,7 +208,7 @@ sel.h.timers.loadTraces = timer('name', 'selectRoisGui:loadTraces', ...
 
 % Overview image:
 sel.h.img.overview = imagesc(sel.disp.img, 'parent', sel.h.ax.overview);
-set(sel.h.ax.overview, 'dataaspect', [1 1 1]);
+% set(sel.h.ax.overview, 'dataaspect', [4 1 1]);
 set(sel.h.ax.overview,'XTick', [], 'YTick', [], 'XTickLabel', [], 'YTickLabel', []); %turn off ticks
 colormap(sel.h.ax.overview, 'gray'); %set colormap to gray
 title(sel.h.ax.overview, 'Overview')
@@ -214,6 +225,7 @@ end
 hold(sel.h.ax.overview, 'on')
 sel.h.img.hasBeenViewed = imshow(hasBeenViewedColor, 'Parent', sel.h.ax.overview);
 hold(sel.h.ax.overview, 'off')
+set(sel.h.ax.overview, 'dataaspect', [w/h 1 1]);
 
 % Eigenvector images:
 for ii = 1:numel(sel.h.ax.eig)

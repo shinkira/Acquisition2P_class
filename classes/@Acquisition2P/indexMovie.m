@@ -1,18 +1,18 @@
 function indexMovie(obj, nSlice, nChannel, writeDir)
-%Function for creating a single large binary file containing an entire
-%movie for a given slice/channel, allowing rapid, indexed access to pixel
-%values. Needed to view ROI traces online within selectROIs GUI.
-%
-%indexMovie(obj,nSlice,nChannel,writeDir)
-%
-%writeDir is the location to write the binary file to, defaults to defaultDir
-%
-%Note the order of data in the binary file: first come all frames for pixel
-%1, then come all frames for the adjacent pixel in the next COLUMN, and
-%after all the pixels in that column come the pixels in the next row. This
-%is the opposite row/col order than in Matlab, but is required due to the
-%way TIFF files are saved. To access the trace for a particular pixel, use
-%this kind of indexing:
+% Function for creating a single large binary file containing an entire
+% movie for a given slice/channel, allowing rapid, indexed access to pixel
+% values. Needed to view ROI traces online within selectROIs GUI.
+% 
+% indexMovie(obj,nSlice,nChannel,writeDir)
+% 
+% writeDir is the location to write the binary file to, defaults to defaultDir
+% 
+% Note the order of data in the binary file: first come all frames for pixel
+% 1, then come all frames for the adjacent pixel in the next COLUMN, and
+% after all the pixels in that column come the pixels in the next row. This
+% is the opposite row/col order than in Matlab, but is required due to the
+% way TIFF files are saved. To access the trace for a particular pixel, use
+% this kind of indexing:
 % movRows = height_of_your_movie;
 % movCols = width_of_you_movie;
 % nFrames = number of frames in the acquisition;
@@ -73,6 +73,9 @@ if ~isunix
     readInStrips = 1;
 elseif h==512 && w==512
     nStrips = 64; %Hard code for default movie size
+    readInStrips = 0;
+elseif h==256 && w==512
+    nStrips = 32; %Hard code for default movie size
     readInStrips = 0;
 else
     nStrips = 1;

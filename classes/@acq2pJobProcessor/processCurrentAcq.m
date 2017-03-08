@@ -61,7 +61,7 @@ else
 end
 
 % Save binary movie file:
-%check if binary movie file created already
+% check if binary movie file created already
 
 for nSlice = 1:length(ajp.currentAcq.correctedMovies.slice)
     if isempty(dir(fullfile(ajp.currentAcq.defaultDir, '*_mov.bin'))) || ...

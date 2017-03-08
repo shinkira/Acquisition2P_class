@@ -10,6 +10,9 @@ classdef Acquisition2P < handle
     properties
         %At present all of these properties can be freely modified by the user
         acqName             %Name of the acquisition, used for saving metadata and variable in worksapce
+        initials            %Experimenter's initials
+        mouseNum            %Mouse ID
+        recDate             %Recording date
         dateCreated         %Date the acquisition was created
         defaultDir          %Default directory for saving motion corrected data and metadata
         Movies = {};        %Cell array containing full filepaths to raw movie data
@@ -25,6 +28,7 @@ classdef Acquisition2P < handle
         indexedMovie        %Structure formatted by slice and channel, each containing filename for mat file
         syncInfo            %Empty structure for adding synchronization information relevant to acquisition
         roiInfo             %Slice structure containing rois and related calculations
+        motionCorrectionDone%Indicates whether motion correction has been done for the current run
     end
     
     methods
@@ -49,9 +53,14 @@ classdef Acquisition2P < handle
             if nargin == 0
                 warning('Blank Acquisition Object Created'),
                 return
-            elseif nargin == 1
-                obj.acqName = varargin{1};
-            elseif nargin == 2
+            end
+            if nargin > 3
+                error('Unsupported number of input arguments'),
+            end
+            if nargin > 2
+                obj.defaultDir = varargin{3};
+            end
+            if nargin > 0
                 obj.acqName = varargin{1};
                 initFunction = varargin{2};
                 if iscell(initFunction)
@@ -62,9 +71,8 @@ classdef Acquisition2P < handle
                 else
                     initFunction(obj);
                 end
-            else
-                error('Unsupported number of input arguments'),
             end
+            
             
             %Check necessary fields and fill in defaults
             if isempty(obj.acqName)

@@ -18,6 +18,8 @@ if isGpu && ~gpuDeviceCount
     isGpu = 0;
 end
 
+isGpu = 0; % SK 16/03/24
+
 % Slice data into chunks to prevent GPU from filling up:
 if isGpu
     gpu = gpuDevice;

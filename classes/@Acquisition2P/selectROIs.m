@@ -62,5 +62,37 @@ if ~exist('excludeFrames','var')
     excludeFrames = [];
 end
 
+%%%%%%%%%%%%%% Use the locally saved files for speedup %%%%%%%%%%%%%%
+
+computerName = getComputerName;
+switch computerName
+    case 'shin-pc'
+        local_SSD_dir = 'E:\';
+    case 'harveylab41223'
+        local_SSD_dir = 'G:\';
+end
+
+server_dir = 'Z:\HarveyLab\Shin\ShinDataAll\';
+
+temp = acq.roiInfo.slice.covFile.fileName;
+ind = strfind(temp,'Imaging');
+if exist([local_SSD_dir,temp(ind:end)],'file')
+    acq.roiInfo.slice.covFile.fileName = [local_SSD_dir,temp(ind:end)];
+else
+    acq.roiInfo.slice.covFile.fileName = [server_dir,temp(ind:end)];
+    warning('Save the covFile on the local SSD for speed up')
+end
+
+temp = acq.indexedMovie.slice.channel.fileName;
+ind = strfind(temp,'Imaging');
+if exist([local_SSD_dir,temp(ind:end)],'file')
+    acq.indexedMovie.slice.channel.fileName = [local_SSD_dir,temp(ind:end)];
+else
+    acq.indexedMovie.slice.channel.fileName = [server_dir,temp(ind:end)];
+    warning('Save the indexedMovie on the local SSD for speed up')
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % All the code for the GUI is in the class selectRoisGui:
 sel = selectRoisGui(acq, img, sliceNum, channelNum, smoothWindow, excludeFrames);

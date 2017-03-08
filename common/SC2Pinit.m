@@ -5,7 +5,8 @@ function SC2Pinit(obj)
 %named after the acquisition name
 
 %Initialize user selection of multiple tif files
-[movNames, movPath] = uigetfile('*.tif','MultiSelect','on');
+[movNames, movPath] = uigetfile('Z:\HarveyLab\Shin\ShinDataAll\Imaging\*.tif','MultiSelect','on');
+% [movNames, movPath] = uigetfile('E:\Imaging\*.tif','MultiSelect','on');
 
 %Set default directory to folder location,
 obj.defaultDir = movPath;
@@ -22,6 +23,11 @@ catch
     obj.acqName = sprintf('%s_%.0f',date,now);
     warning('Automatic Name Generation Failed, using date_time')
 end
+
+ind = strfind(obj.defaultDir,'Imaging');
+obj.initials = obj.defaultDir(ind+8:ind+9);
+obj.mouseNum = str2double(obj.defaultDir(ind+10:ind+12));
+obj.recDate = obj.defaultDir(ind+14:ind+19);
 
 %Attempt to add each selected movie to acquisition in order
 for nMov = 1:length(movNames)

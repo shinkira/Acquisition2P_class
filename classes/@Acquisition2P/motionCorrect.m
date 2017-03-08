@@ -33,6 +33,9 @@ else
     obj.motionCorrectionFunction = motionCorrectionFunction;
 end
 
+motionCorrectionFunctionName = func2str(motionCorrectionFunction);
+fprintf('\nMotion-correction function: %s\n',motionCorrectionFunctionName)
+
 if isempty(obj.acqName)
     error('Acquisition Name Unspecified'),
 end
@@ -41,7 +44,7 @@ if ~exist('writeDir', 'var') || isempty(writeDir) %Use Corrected in Default Dire
     if isempty(obj.defaultDir)
         error('Default Directory unspecified'),
     else
-        writeDir = [obj.defaultDir filesep 'Corrected'];
+        writeDir = [obj.defaultDir,'Corrected'];
     end
 end
 
@@ -57,6 +60,11 @@ if isempty(obj.motionRefMovNum)
     end
 end
 
+%%%%%% LEGACY PART (commented out by SK 17/03/08) %%%%%% 
+% Collecting movie info
+% [nSlices, nChannels] = collectMovieInfo(movNum);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Load movies and motion correct
 %Calculate Number of movies and arrange processing order so that
 %reference is first
@@ -67,9 +75,12 @@ end
 movieOrder = 1:nMovies;
 movieOrder([1 obj.motionRefMovNum]) = [obj.motionRefMovNum 1];
 
+obj.motionCorrectionDone = false;
+
 %Load movies one at a time in order, apply correction, and save as
 %split files (slice and channel)
 for movNum = movieOrder
+
     fprintf('\nLoading Movie #%03.0f of #%03.0f\n',movNum,nMovies),
     [mov, scanImageMetadata] = obj.readRaw(movNum,'single');
     if obj.binFactor > 1
@@ -80,7 +91,7 @@ for movNum = movieOrder
     fprintf('Line Shift Correcting Movie #%03.0f of #%03.0f\n', movNum, nMovies),
     mov = correctLineShift(mov);
     try
-        [movStruct, nSlices, nChannels] = parseScanimageTiff(mov, scanImageMetadata);
+        [movStruct, nSlices, nChannels] = parseScanimageTiff(mov, scanImageMetadata, movNum);
     catch
         error('parseScanimageTiff failed to parse metadata'),
     end
@@ -93,9 +104,23 @@ for movNum = movieOrder
     % Apply motion correction and write separate file for each
     % slice\channel:
     fprintf('Applying Motion Correction for Movie #%03.0f of #%03.0f\n', movNum, nMovies),
-    movStruct = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+    
+    switch motionCorrectionFunctionName
+        case 'withinFile_fullFrame_fft'
+            [obj, movStruct] = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+        case 'withinFile_withinFrame_lucasKanade'
+            movStruct = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+    end
+    
     for nSlice = 1:nSlices
         for nChannel = 1:nChannels
+            % check motion correction has been done already
+            movFileName = feval(namingFunction,obj.acqName, nSlice, nChannel, movNum);
+            if exist([writeDir,filesep,movFileName],'file')
+                fprintf('\nSkipping motion correction:\n%s has been motion-corrected already\n',movFileName)
+                continue
+            end
+            
             % Create movie fileName and save in acq object
             movFileName = feval(namingFunction,obj.acqName, nSlice, nChannel, movNum);
             obj.correctedMovies.slice(nSlice).channel(nChannel).fileName{movNum} = fullfile(writeDir,movFileName);
@@ -114,24 +139,27 @@ for movNum = movieOrder
             end
         end
     end
+    obj.motionCorrectionDone = true;
+    obj.save;
 end
 
-% Store SI metadata in acq object
-obj.metaDataSI = scanImageMetadata;
+if obj.motionCorrectionDone
+    % Store SI metadata in acq object
+    obj.metaDataSI = scanImageMetadata;
 
-%Assign acquisition to a variable with its own name, and write to same
-%directory. Need to ensure that it is a valid variable name:
-if verLessThan('matlab', 'R2014a')
-    acqVarName = genvarname(obj.acqName);
-    eval([acqVarName ' = obj;'])
-else
-    acqVarName = matlab.lang.makeValidName(obj.acqName);
-    eval([acqVarName ' = obj;'])
-end
+    %Assign acquisition to a variable with its own name, and write to same
+    %directory. Need to ensure that it is a valid variable name:
+    if verLessThan('matlab', 'R2014a')
+        acqVarName = genvarname(obj.acqName);
+        eval([acqVarName ' = obj;'])
+    else
+        acqVarName = matlab.lang.makeValidName(obj.acqName);
+        eval([acqVarName ' = obj;'])
+    end
 
-save(fullfile(obj.defaultDir, acqVarName), acqVarName)
+    save(fullfile(obj.defaultDir, acqVarName), acqVarName)
 
-display('Motion Correction Completed!')
+    display('Motion Correction Completed!')
 
 end
 
