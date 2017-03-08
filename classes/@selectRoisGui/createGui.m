@@ -3,7 +3,7 @@ function createGui(sel, acq, img, sliceNum, channelNum, smoothWindow, excludeFra
 % usage.
 
 %% For debugging:
-assignin('base', 'selGUI', sel);
+% assignin('base', 'sel', sel);
 
 %% Create GUI data structure:
 % Initialize properties:
@@ -25,7 +25,7 @@ end
 % Create roiLabels:
 sel.disp.roiLabels = zeros(size(img, 1), size(img, 2));
 for roi = sel.roiInfo.roi(:)'
-    sel.disp.roiLabels(roi.indBody) = roi.id;
+    sel.disp.roiLabels(roi.indBody(isfinite(roi.indBody))) = roi.id;
 end
 
 % Set the current ROI to be 1 greater than last selected
@@ -35,6 +35,7 @@ sel.disp.currentRoi = max([sel.roiInfo.roi.id])+1;
 sel.disp.clusterNum = 3; % Initial number of cuts.
 sel.disp.currentClustering = zeros(sel.roiInfo.covFile.nh); % Labels of current clusters.
 sel.disp.currentClustInd = []; % Which cluster/Roi is currently selected.
+sel.disp.cutMod_nTopToExclude = 0;
 sel.disp.cutVecs = [];
 sel.disp.roiMask = [];
 sel.disp.indBody = [];
@@ -66,6 +67,12 @@ else
     sel.disp.framePeriod = input('Input scanFramePeriod: ');
 end
 
+
+% Create overview image:
+if size(img, 3) == 1
+    % Img is a grayscale image:
+    img = imadjust(img);
+end
 sel.disp.img = img;
 
 if 0
@@ -96,6 +103,14 @@ sel.movMap = memmapfile(acq.indexedMovie.slice(sliceNum).channel(channelNum).fil
     'Format', {'int16', [sum(movLengths), movSizes(1,1)*movSizes(1,2)], 'mov'});
 
 %% Create GUI layout:
+% Check if a GUI exists from a previous session and close it to prevent
+% errors:
+openFigs = findall(0, 'type', 'figure');
+if ~isempty(openFigs)
+    close(openFigs(ismember(get(openFigs, 'name'), 'ROI Selection')));
+end
+
+% Create main GUI figure:
 sel.h.fig.main = figure('Name','ROI Selection');
 set(sel.h.fig.main, 'DefaultAxesFontSize', 10);
 
@@ -158,22 +173,29 @@ sel.h.ui.plotRaw = uicontrol('Style', 'checkbox','String','Raw Plot',...
     [0.034 0.02 0.15 0.048]);
 sel.h.fig.trace(4) = figure('Name','Neuropil-sub Scatter');
 sel.h.ax.subSlope = axes;
-drawnow,
+drawnow
 setFigDockGroup(sel.h.fig.trace,'tracePlotsGUI')
 set(sel.h.fig.trace,'WindowStyle','docked');
 
+% Switch off UI tools for all figures (some callbacks can only be added if
+% no tool is selected):
+activateuimode(sel.h.fig.main, '');
+for i = 1:numel(sel.h.fig.trace)
+    activateuimode(sel.h.fig.trace(i), '');
+end
 
 % Set callbacks:
 set(sel.h.fig.main, 'WindowButtonDownFcn', @sel.cbMouseclick, ...
     'WindowButtonMotionFcn', @sel.cbMousemove, ...
     'WindowScrollWheelFcn', @sel.cbScrollwheel, ...
     'WindowKeyPressFcn', @sel.cbKeypress, ...
-    'CloseRequestFcn', @sel.cbCloseRequestMain);
-set(sel.h.fig.trace(4), 'WindowScrollWheelFcn', @sel.subCoefScrollWheel),
-set(sel.h.fig.trace(:), 'WindowKeyPressFcn', @sel.cbKeypressTraceWin);
-for nWin = 1:4
-    set(sel.h.fig.trace(nWin), 'CloseRequestFcn', @sel.cbCloseRequestMain);
-end
+    'CloseRequestFcn', @sel.cbCloseRequestMain)
+set(sel.h.fig.trace(4), 'WindowScrollWheelFcn', @sel.subCoefScrollWheel, ...
+    'WindowKeyPressFcn', @cbPassThroughKeypressToMain, ...
+    'WindowButtonMotionFcn', @cbFocusFollowsMouse)
+set(sel.h.fig.trace(:), 'WindowKeyPressFcn', @sel.cbKeypressTraceWin, ...
+    'WindowKeyPressFcn', @sel.cbPassThroughKeypressToMain, ...
+    'CloseRequestFcn', @sel.cbCloseRequestMain)
 
 % Set up timers (they can be used to do calculations in the background to
 % improve perceived responsiveness of the GUI):
@@ -224,3 +246,11 @@ warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame'); %disable jav
 jFrame = get(sel.h.fig.main, 'JavaFrame');
 drawnow % Required for maximization to work.
 jFrame.setMaximized(1);
+
+function cbFocusFollowsMouse(~, evt, ~)
+% Attach this function as the WindowButtonMotionFcn callback to any figure
+% that you want to be in focus whenever the mouse cursor is above that
+% figure.
+if ~isequal(gcf, evt.Source)
+    figure(evt.Source)
+end

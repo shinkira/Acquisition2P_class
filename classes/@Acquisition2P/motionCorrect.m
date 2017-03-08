@@ -60,8 +60,10 @@ if isempty(obj.motionRefMovNum)
     end
 end
 
+%%%%%% LEGACY PART (commented out by SK 17/03/08) %%%%%% 
 % Collecting movie info
-[nSlices, nChannels] = collectMovieInfo(movNum)
+% [nSlices, nChannels] = collectMovieInfo(movNum);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Load movies and motion correct
 %Calculate Number of movies and arrange processing order so that
@@ -146,11 +148,18 @@ if obj.motionCorrectionDone
     obj.metaDataSI = scanImageMetadata;
 
     %Assign acquisition to a variable with its own name, and write to same
-    %directory
-    eval([obj.acqName ' = obj;']),
-    save(fullfile(obj.defaultDir, obj.acqName), obj.acqName)
+    %directory. Need to ensure that it is a valid variable name:
+    if verLessThan('matlab', 'R2014a')
+        acqVarName = genvarname(obj.acqName);
+        eval([acqVarName ' = obj;'])
+    else
+        acqVarName = matlab.lang.makeValidName(obj.acqName);
+        eval([acqVarName ' = obj;'])
+    end
+
+    save(fullfile(obj.defaultDir, acqVarName), acqVarName)
+
     display('Motion Correction Completed!')
-end
 
 end
 
@@ -158,40 +167,4 @@ function movFileName = defaultNamingFunction(acqName, nSlice, nChannel, movNum)
 
 movFileName = sprintf('%s_Slice%02.0f_Channel%02.0f_File%03.0f.tif',...
     acqName, nSlice, nChannel, movNum);
-end
-
-function [nSlices, nChannels] = collectMovieInfo(movNum)
-    fprintf('Collecting movie info.\n')
-    [~, siStruct] = obj.readRaw(movNum,'single');
-    % Check for scanimage version before extracting metainformation
-    if isfield(siStruct, 'SI4')
-        siStruct = siStruct.SI4;
-        % Nomenclature: frames and slices refer to the concepts used in
-        % ScanImage.
-        fZ              = siStruct.fastZEnable;
-        nChannels       = numel(siStruct.channelsSave);
-        nSlices         = siStruct.stackNumSlices + (fZ*siStruct.fastZDiscardFlybackFrames); % Slices are acquired at different locations (e.g. depths).
-    elseif isfield(siStruct, 'SI') % scanimage 2015 file
-        fZ              = siStruct.SI.hFastZ.enable;
-        nChannels       = length(siStruct.SI.hChannels.channelSave);
-        nSlices = siStruct.SI.hFastZ.numVolumes + (fZ*siStruct.SI.hFastZ.discardFlybackFrames); 
-        if nSlices ~=1
-            warning('MultiSlice reading of SI-2015 files has not been bug checked!'),
-        end
-    elseif isfield(siStruct,'SI5')
-         siStruct = siStruct.SI5;
-        % Nomenclature: frames and slices refer to the concepts used in
-        % ScanImage.
-        fZ              = siStruct.fastZEnable;
-        nChannels       = numel(siStruct.channelsSave);
-        nSlices         = siStruct.stackNumSlices + (fZ*siStruct.fastZDiscardFlybackFrames); % Slices are acquired at different locations (e.g. depths).
-    elseif isfield(siStruct, 'software') && siStruct.software.version < 4 %ie it's a scanimage 3 file
-        fZ = 0;
-        nSlices = 1;
-        nChannels = siStruct.acq.numberOfChannelsSave;
-    else
-        error('Movie is from an unidentified scanimage version, or metadata is improperly formatted'),
-    end
-    fprintf('%d Channels and %d Slices were found.\n',nChannels,nSlices)
-    fprintf('Combining %d Movies into one tiff file.\n',nChannels,nSlices)
 end

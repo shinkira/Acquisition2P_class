@@ -26,6 +26,7 @@ classdef Acquisition2P < handle
         shifts              %Slice.channel structure containing output of motion correction
         correctedMovies     %Structure formatted by slice and channel, each containing a cell array of filenames
         indexedMovie        %Structure formatted by slice and channel, each containing filename for mat file
+        syncInfo            %Empty structure for adding synchronization information relevant to acquisition
         roiInfo             %Slice structure containing rois and related calculations
         motionCorrectionDone%Indicates whether motion correction has been done for the current run
     end
@@ -105,7 +106,7 @@ classdef Acquisition2P < handle
             %
             % [movie, metaMovie] = readRaw(obj,movNum,castType)
             if ~exist('castType', 'var') || isempty(castType)
-                castType = 'uint16';
+                castType = 'int16';
             end
             [movie, metaMovie] = tiffRead(obj.Movies{movNum},castType);
         end
@@ -119,7 +120,7 @@ classdef Acquisition2P < handle
                 error('This Acquisition Object is not Associated with Motion Corrected Data')
             end
             if ~exist('castType', 'var') || isempty(castType)
-                castType = 'uint16';
+                castType = 'int16';
             end
             if ~exist('sliceNum', 'var') || isempty(sliceNum)
                 sliceNum = 1;

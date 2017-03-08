@@ -1,4 +1,4 @@
-function movStruct = withinFile_withinFrame_lucasKanade(...
+function movStruct = lucasKanade_affineReg(...
     obj, movStruct, scanImageMetadata, movNum, opMode)
 % movStruct = withinFile_withinFrame_lucasKanade(obj, movStruct, scanImageMetadata, movNum, opMode)
 % finds/corrects in-frame motion with an algorithm that takes into account
@@ -7,39 +7,13 @@ function movStruct = withinFile_withinFrame_lucasKanade(...
 nSlice = numel(movStruct.slice);
 nChannel = numel(movStruct.slice(1).channel);
 
-isGpu = false;
-
-if isGpu
-    gpu = gpuDevice;
-    pctRunOnAll reset(gpuDevice);
-    wait(gpu)
-    memAvailable = gpu.AvailableMemory;
-end
-isEqualizeLuminace = false;
-
 switch opMode
     case 'identify'
         refCh = obj.motionRefChannel;
         refMov = obj.motionRefMovNum;
         for iSl = 1:nSlice
             [h, w, z] = size(double(movStruct.slice(iSl).channel(refCh).mov));
-            
-            % It is important to exclude the black bars that are
-            % present in older Scanimage files because they don't
-            % translate and will bias the results. We simply cut off
-            % 10 % on either side:
-            isEdge = (1:w) < 0.1*w | (1:w) > 0.9*w;
-            movTemp = movStruct.slice(iSl).channel(refCh).mov(:, ~isEdge, :);
-            
-            % Perform luminance equalization (this may be helpful for
-            % movies with very uneven brightness, e.g. one highly
-            % overexpressing region besides a healthy region of interest):
-            if isEqualizeLuminace
-                localLuminance = imgaussfilt(movTemp, round(h/12));
-                movTemp = ...
-                    bsxfun(@rdivide, movTemp, localLuminance);
-				movTemp(~isfinite(movTemp)) = 0;
-            end
+            movTemp = movStruct.slice(iSl).channel(refCh).mov;
             
             % Perform whole-frame translation correction (this is fast and
             % improves the quality of the reference used for the Lucas
@@ -67,40 +41,37 @@ switch opMode
             % Find global displacement with respect to global reference
             % image:
             if movNum == refMov
-                % Apply shifts to get reference image (we can't just use
-                % movTemp because we cut off its edges earlier):
+                % reference movie does not need global alignment
                 tformGlobal = affine2d;
-                obj.shifts(movNum).slice(iSl).x = createDispFieldFunctionX(h, w, z, basisFunctions, dpx, dpy, tformGlobal);
-                obj.shifts(movNum).slice(iSl).y = createDispFieldFunctionY(h, w, z, basisFunctions, dpx, dpy, tformGlobal);
+%                 obj.shifts(movNum).slice(iSl).x = createDispFieldFunctionX(h, w, z, basisFunctions, dpx, dpy, tformGlobal);
+%                 obj.shifts(movNum).slice(iSl).y = createDispFieldFunctionY(h, w, z, basisFunctions, dpx, dpy, tformGlobal);
+                thisRef = nanmean(movTemp,3);
                 
-                Dx = obj.shifts(movNum).slice(iSl).x();
-                Dy = obj.shifts(movNum).slice(iSl).y();
-                
-                for iCh = 1:nChannel
-                    for f = 1:z
-                        movStruct.slice(iSl).channel(iCh).mov(:,:,f) = ...
-                            interp2(...
-                                movStruct.slice(iSl).channel(iCh).mov(:,:,f), ...
-                                Dx(:,:,f), ...
-                                Dy(:,:,f), ...
-                                'linear', nan);
-                    end
-                    obj.derivedData(movNum).meanRef.slice(iSl).channel(iCh).img = ...
-                        nanmean(movStruct.slice(iSl).channel(iCh).mov, 3);
-                end
+%                 Dx = obj.shifts(movNum).slice(iSl).x();
+%                 Dy = obj.shifts(movNum).slice(iSl).y();
+%                 
+%                 for iCh = 1:nChannel
+%                     thisMov = movStruct.slice(iSl).channel(iCh).mov;
+%                     parfor f = 1:z
+%                         thisMov(:,:,f) = ...
+%                             interp2(...
+%                                 thisMov(:,:,f), ...
+%                                 Dx(:,:,f), ...
+%                                 Dy(:,:,f), ...
+%                                 'linear', nan);
+%                     end
+%                     movStruct.slice(iSl).channel(iCh).mov = thisMov;
+%                     obj.derivedData(movNum).meanRef.slice(iSl).channel(iCh).img = ...
+%                         nanmean(movStruct.slice(iSl).channel(iCh).mov, 3);
+%                 end
               
                 obj.motionRefImage.slice(iSl).img = ...
-                    nanmean(movStruct.slice(iSl).channel(refCh).mov, 3);
+                    thisRef;
+                obj.derivedData(movNum).meanRef.slice(iSl).channel(refCh).img = thisRef;
                 
             else                
-                refGlobal = obj.motionRefImage.slice(iSl).img(:, ~isEdge);
-				if isEqualizeLuminace
-					localLuminance = imgaussfilt(refGlobal, round(h/12));
-					refGlobal = refGlobal./localLuminance;
-					refGlobal(~isfinite(refGlobal)) = 0;
-				end
-				
-                refHere = nanmedian(movTemp, 3); % movTemp already had its edges cut off above.
+                refGlobal = obj.motionRefImage.slice(iSl).img;
+                refHere = nanmedian(movTemp, 3); 
                 
                 % First, we find translation only. The subsequent affine
                 % step only works robustly if the translation has already
@@ -113,10 +84,13 @@ switch opMode
                 % Find affine transformation using mutual information
                 % metric:
                 opt = imregconfig('Monomodal');
-                opt.MaximumIterations = 300;
-                opt.RelaxationFactor = 0.9;
+                opt.MaximumIterations = 50;
+%                 opt.RelaxationFactor = 0.9;
                 met = registration.metric.MattesMutualInformation;
-                RA = imref2d([h, sum(~isEdge)]);      
+%                 met.UseAllPixels = 0;
+%                 pixFrac = 1/5;
+%                 met.NumberOfSpatialSamples = round(pixFrac*w*h);
+                RA = imref2d([h, w]);      
                 tformGlobal = imregtform(refHere, RA, refGlobal, RA, ...
                     'affine', opt, met, ...
                     'InitialTransformation', Tinit, 'PyramidLevels', 1);
@@ -159,14 +133,16 @@ switch opMode
                 % This for-loop is faster than using interpn without a
                 % loop, both on the CPU and the GPU. Re-evaluate this if we
                 % have a GPU that can fit an entire movie into RAM.
-                for f = 1:z
-                    movStruct.slice(iSl).channel(iCh).mov(:,:,f) = ...
+                thisMov = movStruct.slice(iSl).channel(iCh).mov;
+                parfor f = 1:z
+                    thisMov(:,:,f) = ...
                         interp2(...
-                            movStruct.slice(iSl).channel(iCh).mov(:,:,f), ...
+                            thisMov(:,:,f), ...
                             Dx(:,:,f), ...
                             Dy(:,:,f), ...
-                            'linear', nan);
+                            'bicubic', nan);
                 end
+                movStruct.slice(iSl).channel(iCh).mov = thisMov;
                 obj.derivedData(movNum).meanRef.slice(iSl).channel(iCh).img = ...
                     nanmean(movStruct.slice(iSl).channel(iCh).mov, 3);
             end
