@@ -162,6 +162,7 @@ if obj.motionCorrectionDone
     display('Motion Correction Completed!')
 
 end
+end
 
 function movFileName = defaultNamingFunction(acqName, nSlice, nChannel, movNum)
 

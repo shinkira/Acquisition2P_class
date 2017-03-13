@@ -1,10 +1,10 @@
 function processImgData(varargin)
 
 varargin2V(varargin);
-if exist('initials','var') && exist('mouseID','var') && exist('date_num','var')
-    defaultDir = ['Z:\HarveyLab\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouseID),filesep,num2str(date_num),filesep];
+if exist('initials','var') && exist('mouse_num','var') && exist('date_num','var')
+    defaultDir = ['\\research.files.med.harvard.edu\Neurobio\HarveyLab\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouse_num),filesep,num2str(date_num),filesep];
 else
-    movDir = uigetdir('Z:\HarveyLab\Shin\ShinDataAll\Imaging\');
+    movDir = uigetdir('\\research.files.med.harvard.edu\Neurobio\HarveyLab\Shin\ShinDataAll\Imaging\');
     defaultDir = [movDir,filesep];
 end
 
@@ -20,19 +20,33 @@ end
 for fi = 1:length(FOV_list)
     
     if iscell(FOV_list)
-        FOV_name = [initials,num2str(mouseID),'_',num2str(date_num),'_',FOV_list{fi}];
+        FOV_name = [initials,num2str(mouse_num),'_',num2str(date_num),'_',FOV_list{fi}];
     elseif ischar(FOV_list)
-        FOV_name = [initials,num2str(mouseID),'_',num2str(date_num),'_',FOV_list];
+        FOV_name = [initials,num2str(mouse_num),'_',num2str(date_num),'_',FOV_list];
     else
         error('FOV_list must be a Cell')
     end
     
     % create obj
     obj = Acquisition2P(['FOV',FOV_name],@SK2Pinit,defaultDir);
-
+    
+    if ~exist('motionCorrectionFunction','var')
+        % overwrite motion correction function
+        switch mouse_num
+            case {1,3,16}
+                obj.motionCorrectionFunction = @withinFile_fullFrame_fft;
+            case {9,13,15,20,22,23}
+                obj.motionCorrectionFunction = @lucasKanade_affineReg;
+        end
+    else
+        obj.motionCorrectionFunction = motionCorrectionFunction;
+    end
+    fprintf('motionCorrectionFunction:\t%s\n',func2str(obj.motionCorrectionFunction));
+    
     % apply motion correction
     obj.motionCorrect;
     
+    return
     [mov, scanImageMetadata] = obj.readRaw(1,'single');
     [movStruct, nSlices, nChannels] = parseScanimageTiff(mov, scanImageMetadata);
     
