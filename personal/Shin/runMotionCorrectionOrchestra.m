@@ -4,12 +4,13 @@ function runMotionCorrectionOrchestra(~, ~, ~)
 [orchestraBaseDir, ~, ~] = fileparts(which('orchestra_execution_engine_v2'));
 jobsToDo = fullfile(orchestraBaseDir, 'acqsToProcess');
 
-if 0
-    %% Set up parallel pool:
-    ClusterInfo.setWallTime('240:00'); % 20 hour
-    ClusterInfo.setMemUsage('2000')
+% If we're on Orchestra, start parallel pool with correct
+% settings:
+if isunix && ~isempty(gcp('nocreate'))
+    ClusterInfo.setWallTime('10:00');
+    ClusterInfo.setMemUsage('12000')
     ClusterInfo.setQueueName('mpi')
-    parpool(6)
+    parpool(12)
 end
 
 %% Run AJP:
