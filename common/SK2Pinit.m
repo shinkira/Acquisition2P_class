@@ -64,9 +64,9 @@ computerName = getComputerName;
 switch computerName
     case 'shin-pc'
         % obj.motionCorrectionFunction = @withinFile_fullFrame_fft;
-        obj.motionCorrectionFunction = @withinFile_withinFrame_lucasKanade;
+        obj.motionCorrectionFunction = @lucasKanade_affineReg;
     case 'harveylab41223' 
-        obj.motionCorrectionFunction = @withinFile_withinFrame_lucasKanade;
+        obj.motionCorrectionFunction = @lucasKanade_affineReg;
 end
 
 %Assign acquisition object to acquisition name variable in workspace
