@@ -108,6 +108,7 @@ classdef Acquisition2P < handle
             if ~exist('castType', 'var') || isempty(castType)
                 castType = 'int16';
             end
+            % [movie, metaMovie] = bigTiffRead(obj.Movies{movNum},castType);
             [movie, metaMovie] = tiffRead(obj.Movies{movNum},castType);
         end
         

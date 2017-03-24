@@ -33,7 +33,7 @@ inputName = 'runMotionCorrectionOrchestra';
 [orchestraBaseDir, ~, ~] = fileparts(which(mfilename));
 addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'helperFunctions')));
 addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'Acquisition2P_class')));
-addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'Motion_Correction')));
+% addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'Motion_Correction')));
 % addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'HarveyLab_helperFunctions')));
 % addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'analysis')));
 % addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'imageProcessing')));
