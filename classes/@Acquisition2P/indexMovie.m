@@ -105,7 +105,7 @@ for iStrip = 1:nStrips
             if readInStrips
                 thisStrip(:,:,iFrameGlobal) = readEncodedStrip(t(iFile),iStrip);
             else
-                tmpImg = t.read;
+                tmpImg = t(iFile).read;
                 thisStrip(:, :, iFrameGlobal) = tmpImg((1:8)+8*(iStrip-1), :);
             end
         end
@@ -121,6 +121,7 @@ for iStrip = 1:nStrips
     % opposite of Matlab). This is caused by the fact that TIFF strips are
     % horizontal, not vertical.
     thisStripBinShape = permute(thisStrip, [2, 1, 3]);
+    clearvars thisStrip
     thisStripBinShape = reshape(thisStripBinShape, [], nFramesTotal);
     thisStripBinShape = thisStripBinShape';
     
