@@ -67,7 +67,7 @@ w = movSizes(1, 2);
 nFrames = movSizes(:, 3);
 nFramesTotal = sum(nFrames);
 
-if ~isunix
+if 1 % ~isunix
     % Get number of strips from first movie (note: this does not work on Linux/Orchestra):
     nStrips = t(1).numberOfStrips;
     readInStrips = 1;
