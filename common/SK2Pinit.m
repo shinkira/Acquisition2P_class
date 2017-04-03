@@ -20,7 +20,7 @@ end
 %Do not include the overview image 
 k = 1;
 for mi = 1:length(movNames) 
-    if isempty(strfind(movNames{mi},'overview'));
+    if isempty(strfind(movNames{mi},'overview')) % && isempty(strfind(movNames{mi},'00005'));
         temp{k} = movNames{mi};
         k = k+1;
     end

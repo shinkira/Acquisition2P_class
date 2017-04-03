@@ -34,7 +34,7 @@ if isempty(ajp.currentAcq.shifts)
         % settings:
         if isunix && ~isempty(gcp('nocreate'))
             ClusterInfo.setWallTime('20:00'); % 20 hour
-            ClusterInfo.setMemUsage('4000')
+            ClusterInfo.setMemUsage('12000')
             ClusterInfo.setQueueName('mpi')
             parpool(12)
         end
