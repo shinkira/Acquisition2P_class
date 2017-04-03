@@ -34,7 +34,7 @@ if isempty(ajp.currentAcq.shifts)
         % settings:
         if isunix && ~isempty(gcp('nocreate'))
             ClusterInfo.setWallTime('20:00'); % 20 hour
-            ClusterInfo.setMemUsage('12000')
+            ClusterInfo.setMemUsage('4000')
             ClusterInfo.setQueueName('mpi')
             parpool(12)
         end
@@ -93,12 +93,12 @@ for nSlice = 1:length(ajp.currentAcq.correctedMovies.slice)
             % If we're on Orchestra, start parallel pool with correct
             % settings:
             % perpool is already set in runMotionCorrectionOrchestra.m 
-            % if isunix && ~isempty(gcp('nocreate'))
-            %     ClusterInfo.setWallTime('10:00');
-            %     ClusterInfo.setMemUsage('12000')
-            %     ClusterInfo.setQueueName('mpi')
-            %     parpool(12)
-            % end
+            if isunix && ~isempty(gcp('nocreate'))
+                ClusterInfo.setWallTime('10:00');
+                ClusterInfo.setMemUsage('12000')
+                ClusterInfo.setQueueName('mpi')
+                parpool(12)
+            end
             
             ajp.currentAcq.extractSources(nSlice);
             ajp.saveCurrentAcq;
