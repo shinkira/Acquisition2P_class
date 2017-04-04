@@ -67,16 +67,19 @@ w = movSizes(1, 2);
 nFrames = movSizes(:, 3);
 nFramesTotal = sum(nFrames);
 
-if 1 % ~isunix
+if ~isunix
     % Get number of strips from first movie (note: this does not work on Linux/Orchestra):
     nStrips = t(1).numberOfStrips;
     readInStrips = 1;
+    stripHeight = size(readEncodedStrip(t(1), iStrip),1);
 elseif h==512 && w==512
     nStrips = 64; %Hard code for default movie size
     readInStrips = 0;
+    stripHeight = 8;
 elseif h==256 && w==512
     nStrips = 32; %Hard code for default movie size
     readInStrips = 0;
+    stripHeight = 8;
 else
     nStrips = 1;
     warning('User needs to specify strip sizes on unix computers'),
@@ -92,7 +95,6 @@ for iStrip = 1:nStrips
         t(end+1) = Tiff(f{:});
     end
 
-    stripHeight = size(readEncodedStrip(t(1), iStrip),1);
     thisStrip = zeros(stripHeight, w, nFramesTotal, 'int16');
     
     % Read current strip from all files:
