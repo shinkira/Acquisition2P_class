@@ -1,4 +1,4 @@
-function motionCorrect(obj,writeDir,motionCorrectionFunction,namingFunction)
+function motionCorrect(obj,writeDir,motionCorrectionFunction,namingFunction,varargin)
 %Wrapper function managing motion correction of an acquisition object
 %
 %motionCorrect(obj,writeDir,motionCorrectionFunction,namingFunction)
@@ -60,6 +60,10 @@ if isempty(obj.motionRefMovNum)
     end
 end
 
+if ~isempty(varargin)
+    ajp = varargin{1};
+end
+
 %%%%%% LEGACY PART (commented out by SK 17/03/08) %%%%%% 
 % Collecting movie info
 % [nSlices, nChannels] = collectMovieInfo(movNum);
@@ -80,7 +84,15 @@ obj.motionCorrectionDone = false;
 %Load movies one at a time in order, apply correction, and save as
 %split files (slice and channel)
 for movNum = movieOrder
-
+    
+    % check motion correction has been done already
+    if ~isempty(obj.shifts)
+        if ~isempty(obj.shifts(movNum).slice)
+            fprintf('\nSkipping motion correction:\n#%03d has been motion-corrected already\n',movNum)
+            continue
+        end
+    end
+    
     fprintf('\nLoading Movie #%03.0f of #%03.0f\n',movNum,nMovies),
     [mov, scanImageMetadata] = obj.readRaw(movNum,'single');
     if obj.binFactor > 1
@@ -113,14 +125,7 @@ for movNum = movieOrder
     end
     
     for nSlice = 1:nSlices
-        for nChannel = 1:nChannels
-            % check motion correction has been done already
-            movFileName = feval(namingFunction,obj.acqName, nSlice, nChannel, movNum);
-            if exist([writeDir,filesep,movFileName],'file')
-                fprintf('\nSkipping motion correction:\n%s has been motion-corrected already\n',movFileName)
-                continue
-            end
-            
+        for nChannel = 1:nChannels            
             % Create movie fileName and save in acq object
             movFileName = feval(namingFunction,obj.acqName, nSlice, nChannel, movNum);
             obj.correctedMovies.slice(nSlice).channel(nChannel).fileName{movNum} = fullfile(writeDir,movFileName);
@@ -145,6 +150,8 @@ for movNum = movieOrder
                     % tiffWrite(movStruct.slice(nSlice).channel(nChannel).mov, movFileName, writeDir, 'int16');
                 end
             end
+            % save after each file so that motion correction resumes from the interrupted file
+            ajp.saveCurrentAcq;
         end
     end
     obj.motionCorrectionDone = true;

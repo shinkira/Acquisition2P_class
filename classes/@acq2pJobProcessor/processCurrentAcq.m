@@ -27,7 +27,7 @@ end
 
 % Motion correction:
 %check if motion correction already applied
-if isempty(ajp.currentAcq.shifts)
+if ~ajp.currentAcq.motionCorrectionDone
     try
 	
         % If we're on Orchestra, start parallel pool with correct
@@ -40,7 +40,7 @@ if isempty(ajp.currentAcq.shifts)
         end
 	
         ajp.log('Started motion correction.');
-        ajp.currentAcq.motionCorrect([],[],ajp.nameFunc);
+        ajp.currentAcq.motionCorrect([],[],ajp.nameFunc,ajp);
         ajp.saveCurrentAcq;
         
         % If we're on Orchestra, we should close the parallel pool to
@@ -90,8 +90,6 @@ movefile(fullfile(ajp.dir.inProgress, ajp.currentAcqFileName),...
     fullfile(ajp.dir.done, ajp.currentAcqFileName));
 
 ajp.log('Done processing.');
-
-end
 
 return
 
@@ -201,6 +199,8 @@ end
 % else
 %     ajp.log('Covariance already calculated. Skipping...');
 % end
+
+end
 
 function printStack(ajp, stack)
 % Prints the whole error stack to log file:
