@@ -82,6 +82,19 @@ for nSlice = 1:length(ajp.currentAcq.correctedMovies.slice)
     end
 end
 
+% Move acqFile to done folder:
+if ~exist(ajp.dir.done, 'dir');
+    mkdir(ajp.dir.done);
+end
+movefile(fullfile(ajp.dir.inProgress, ajp.currentAcqFileName),...
+    fullfile(ajp.dir.done, ajp.currentAcqFileName));
+
+ajp.log('Done processing.');
+
+end
+
+return
+
 % Perform NMF-based source extraction:
 for nSlice = 1:length(ajp.currentAcq.correctedMovies.slice)
     if isempty(dir(fullfile(ajp.currentAcq.defaultDir, '*_patchResults*.mat'))) ||...
@@ -188,17 +201,6 @@ end
 % else
 %     ajp.log('Covariance already calculated. Skipping...');
 % end
-
-% Move acqFile to done folder:
-if ~exist(ajp.dir.done, 'dir');
-    mkdir(ajp.dir.done);
-end
-movefile(fullfile(ajp.dir.inProgress, ajp.currentAcqFileName),...
-    fullfile(ajp.dir.done, ajp.currentAcqFileName));
-
-ajp.log('Done processing.');
-
-end
 
 function printStack(ajp, stack)
 % Prints the whole error stack to log file:
