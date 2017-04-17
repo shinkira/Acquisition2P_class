@@ -129,13 +129,21 @@ for movNum = movieOrder
                 size(movStruct.slice(nSlice).channel(nChannel).mov);            
             % Write corrected movie to disk
             fprintf('Writing Movie #%03.0f of #%03.0f\n',movNum,nMovies),
-            try
-                tiffWrite(movStruct.slice(nSlice).channel(nChannel).mov, movFileName, writeDir, 'int16');
-            catch
-                % Sometimes, disk access fails due to intermittent
-                % network problem. In that case, wait and re-try once:
-                pause(60);
-                tiffWrite(movStruct.slice(nSlice).channel(nChannel).mov, movFileName, writeDir, 'int16');
+            
+            count = 0;
+            err_count = 0;
+            while count == err_count && count<10
+                count = count + 1;
+                try
+                    tiffWrite(movStruct.slice(nSlice).channel(nChannel).mov, movFileName, writeDir, 'int16');
+                catch
+                    % Sometimes, disk access fails due to intermittent
+                    % network problem. In that case, wait and re-try once:
+                    err_count = err_count + 1;
+                    fprintf('tiffWrite Error %d\n',err_count)
+                    pause(60);
+                    % tiffWrite(movStruct.slice(nSlice).channel(nChannel).mov, movFileName, writeDir, 'int16');
+                end
             end
         end
     end
