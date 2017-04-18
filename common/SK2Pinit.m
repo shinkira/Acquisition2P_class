@@ -58,7 +58,7 @@ obj.binFactor = 1;
 
 % Default motion correction function
 obj.motionCorrectionFunction = @withinFile_withinFrame_lucasKanade;
-obj.motionCorrectionDone = false;
+obj.motionCorrectionDone = false(1,length(movNames));
 
 % Customized motion correction function
 computerName = getComputerName;

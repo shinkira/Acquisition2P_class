@@ -27,7 +27,7 @@ end
 
 % Motion correction:
 %check if motion correction already applied
-if ~ajp.currentAcq.motionCorrectionDone
+if ~all(ajp.currentAcq.motionCorrectionDone)
     try
 	
         % If we're on Orchestra, start parallel pool with correct
