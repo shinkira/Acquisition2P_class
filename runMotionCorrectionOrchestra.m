@@ -14,5 +14,5 @@ jobsToDo = fullfile(orchestraBaseDir, 'acqsToProcess');
 % end
 
 %% Run AJP:
-shouldContinue = false;
-acq2pJobProcessor(jobsToDo, [], shouldContinue);
+isExitAfterOneJob = true;
+acq2pJobProcessor(jobsToDo, [], isExitAfterOneJob);
