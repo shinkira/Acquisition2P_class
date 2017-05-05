@@ -10,13 +10,13 @@ for mi = 1:length(movInfo)
 end
 
 % Loop through each
-k = 2;
+k = 1;
 for mi = 1:length(movInfo)
     % Get the file name (minus the extension)
     movNames{mi} = movInfo(mi).name;
-    ind = strfind(movNames{mi},sprintf('FOV1_001_%03d_',k));
+    ind = strfind(movNames{mi},sprintf('FOV1_00002_%05d',k));
     if ~isempty(ind)
-        newFileName = strrep(movNames{mi},sprintf('FOV1_001_%03d_',k),sprintf('FOV1_000_%03d',k));
+        newFileName = strrep(movNames{mi},sprintf('FOV1_00002_%05d',k),sprintf('FOV1_00001_%05d',k));
         movefile(fullfile(defaultDir,movNames{mi}),fullfile(defaultDir,newFileName));
         k = k+1;
     end

@@ -60,6 +60,17 @@ else
     ajp.log('Motion correction already performed. Skipping...');
 end
 
+% Move acqFile to done folder:
+if ~exist(ajp.dir.done, 'dir');
+    mkdir(ajp.dir.done);
+end
+movefile(fullfile(ajp.dir.inProgress, ajp.currentAcqFileName),...
+    fullfile(ajp.dir.done, ajp.currentAcqFileName));
+
+ajp.log('Done processing.');
+
+return
+
 % Save binary movie file:
 % check if binary movie file created already
 
@@ -81,17 +92,6 @@ for nSlice = 1:length(ajp.currentAcq.correctedMovies.slice)
         ajp.log('Binary movie already created. Skipping...');
     end
 end
-
-% Move acqFile to done folder:
-if ~exist(ajp.dir.done, 'dir');
-    mkdir(ajp.dir.done);
-end
-movefile(fullfile(ajp.dir.inProgress, ajp.currentAcqFileName),...
-    fullfile(ajp.dir.done, ajp.currentAcqFileName));
-
-ajp.log('Done processing.');
-
-return
 
 % Perform NMF-based source extraction:
 for nSlice = 1:length(ajp.currentAcq.correctedMovies.slice)
