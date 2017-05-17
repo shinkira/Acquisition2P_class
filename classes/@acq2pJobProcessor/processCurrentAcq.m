@@ -33,7 +33,7 @@ if ~all(ajp.currentAcq.motionCorrectionDone)
         % If we're on Orchestra, start parallel pool with correct
         % settings:
         if isunix && ~isempty(gcp('nocreate'))
-            ClusterInfo.setWallTime('20:00'); % 20 hour
+            ClusterInfo.setWallTime('36:00'); % 20 hour
             ClusterInfo.setMemUsage('4000')
             ClusterInfo.setQueueName('mpi')
             parpool(12)
@@ -105,7 +105,7 @@ for nSlice = 1:length(ajp.currentAcq.correctedMovies.slice)
             % settings:
             % perpool is already set in runMotionCorrectionOrchestra.m 
             if isunix && ~isempty(gcp('nocreate'))
-                ClusterInfo.setWallTime('10:00');
+                ClusterInfo.setWallTime('20:00');
                 ClusterInfo.setMemUsage('12000')
                 ClusterInfo.setQueueName('mpi')
                 parpool(12)
@@ -140,7 +140,7 @@ if isempty(dir(fullfile(ajp.currentAcq.defaultDir, '*_deconvResults.mat')))
         % If we're on Orchestra, start parallel pool with correct
         % settings:
         if isunix && ~isempty(gcp('nocreate'))
-            ClusterInfo.setWallTime('10:00');
+            ClusterInfo.setWallTime('20:00');
             ClusterInfo.setMemUsage('12000')
             ClusterInfo.setQueueName('mpi')
             parpool(12)

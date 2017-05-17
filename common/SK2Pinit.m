@@ -57,17 +57,18 @@ obj.motionRefChannel = 1;
 obj.binFactor = 1;
 
 % Default motion correction function
-obj.motionCorrectionFunction = @withinFile_withinFrame_lucasKanade;
+obj.motionCorrectionFunction = @lucasKanade_plus_nonrigid.m;
 obj.motionCorrectionDone = false(1,length(movNames));
 
 % Customized motion correction function
 computerName = getComputerName;
 switch computerName
     case 'shin-pc'
+        obj.motionCorrectionFunction = @lucasKanade_plus_nonrigid;
         % obj.motionCorrectionFunction = @withinFile_fullFrame_fft;
-        obj.motionCorrectionFunction = @lucasKanade_affineReg;
+        % obj.motionCorrectionFunction = @lucasKanade_affineReg;
     case 'harveylab41223' 
-        obj.motionCorrectionFunction = @lucasKanade_affineReg;
+        obj.motionCorrectionFunction = @lucasKanade_plus_nonrigid;
 end
 
 %Assign acquisition object to acquisition name variable in workspace
