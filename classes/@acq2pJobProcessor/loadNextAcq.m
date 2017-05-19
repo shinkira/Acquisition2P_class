@@ -17,7 +17,7 @@ name = fieldnames(acq);
 ajp.currentAcq = acq.(name{1});
 
 % Change the default directory when running on Orchestra
-if isunix
+if 0 %isunix
     ajp.currentAcq.defaultDir = changePath4Orchestra(ajp.currentAcq.defaultDir);
     for mi = 1:length(ajp.currentAcq.Movies)
         ajp.currentAcq.Movies{mi} = changePath4Orchestra(ajp.currentAcq.Movies{mi});
