@@ -113,11 +113,10 @@ for movNum = movieOrder
     % slice\channel:
     fprintf('Applying Motion Correction for Movie #%03.0f of #%03.0f\n', movNum, nMovies),
     
-    switch motionCorrectionFunctionName
-        case 'withinFile_fullFrame_fft'
-            [obj, movStruct] = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
-        case 'withinFile_withinFrame_lucasKanade'
-            movStruct = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+    if strcmp(motionCorrectionFunctionName,'withinFile_fullFrame_fft')
+        [obj, movStruct] = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
+    else
+        movStruct = obj.motionCorrectionFunction(obj, movStruct, scanImageMetadata, movNum, 'apply');
     end
     
     for nSlice = 1:nSlices
