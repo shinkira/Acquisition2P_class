@@ -91,6 +91,7 @@ for movNum = movieOrder
     
     fprintf('\nLoading Movie #%03.0f of #%03.0f\n',movNum,nMovies),
     [mov, scanImageMetadata] = obj.readRaw(movNum,'single');
+    
     if obj.binFactor > 1
         mov = binSpatial(mov, obj.binFactor);
     end
@@ -149,7 +150,12 @@ for movNum = movieOrder
     end
     obj.motionCorrectionDone(movNum) = true;
     % save after each file so that motion correction resumes from the interrupted file
-    ajp.saveCurrentAcq;
+    if isunix
+        % save Acquisition Job Processor when running on Orchestra 
+        ajp.saveCurrentAcq;
+    else
+        obj.save;
+    end
 end
 
 if all(obj.motionCorrectionDone)
