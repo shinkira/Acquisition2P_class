@@ -51,7 +51,8 @@ switch opMode
             else                
                 refGlobal = obj.motionRefImage.slice(iSl).img;
                 refGlobal(isnan(refGlobal)) = 0; % imregtform can't deal with nans.
-                refHere = nanmedian(movTemp, 3); 
+                % refHere = nanmedian(movTemp, 3);
+                refHere = nanmean(movTemp, 3);
                 
                 % First, we find translation only. The subsequent affine
                 % step only works robustly if the translation has already
