@@ -60,10 +60,6 @@ if isempty(obj.motionRefMovNum)
     end
 end
 
-if ~isempty(varargin)
-    ajp = varargin{1};
-end
-
 %%%%%% LEGACY PART (commented out by SK 17/03/08) %%%%%% 
 % Collecting movie info
 % [nSlices, nChannels] = collectMovieInfo(movNum);
