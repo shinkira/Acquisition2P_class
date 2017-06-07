@@ -31,7 +31,7 @@ if ~all(ajp.currentAcq.motionCorrectionDone)
         end
 	
         ajp.log('Started motion correction.');
-        ajp.currentAcq.motionCorrect([],[],ajp.nameFunc,ajp);
+        ajp.currentAcq.motionCorrect([],[],[],ajp.nameFunc,ajp);
         ajp.saveCurrentAcq;
         
         % If we're on Orchestra, we should close the parallel pool to
