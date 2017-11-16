@@ -12,7 +12,7 @@ movInfo = dir([obj.defaultDir,movie_header,'*.tif']);
 for mi = 1:length(movInfo)
     movNames{mi} = movInfo(mi).name;
 end
-% [movNames, movPath] = uigetfile('Z:\HarveyLab\Shin\ShinDataAll\Imaging\*.tif','MultiSelect','on');
+% [movNames, movPath] = uigetfile('Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\*.tif','MultiSelect','on');
 % [movNames, movPath] = uigetfile('E:\Imaging\*.tif','MultiSelect','on');
 
 % test

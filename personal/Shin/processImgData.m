@@ -2,9 +2,9 @@ function processImgData(varargin)
 
 varargin2V(varargin);
 if exist('initials','var') && exist('mouse_num','var') && exist('date_num','var')
-    defaultDir = ['\\research.files.med.harvard.edu\Neurobio\HarveyLab\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouse_num),filesep,num2str(date_num),filesep];
+    defaultDir = ['\\research.files.med.harvard.edu\Neurobio\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouse_num),filesep,num2str(date_num),filesep];
 else
-    movDir = uigetdir('\\research.files.med.harvard.edu\Neurobio\HarveyLab\Shin\ShinDataAll\Imaging\');
+    movDir = uigetdir('\\research.files.med.harvard.edu\Neurobio\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\');
     defaultDir = [movDir,filesep];
 end
 
@@ -83,7 +83,7 @@ for fi = 1:length(FOV_list)
         % configure file destinations
         ind = strfind(obj.defaultDir,obj.initials);
         localDir = ['C:\Users\Shin\Documents\MATLAB\ShinDataAll\Imaging\',obj.defaultDir(ind:end)];
-        % serverDir = ['Z:\HarveyLab\Shin\ShinDataAll\Imaging\',obj.defaultDir(ind:end)];
+        % serverDir = ['Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',obj.defaultDir(ind:end)];
         
         if ~exist([localDir,'Corrected'],'dir')
             mkdir([localDir,'Corrected']);

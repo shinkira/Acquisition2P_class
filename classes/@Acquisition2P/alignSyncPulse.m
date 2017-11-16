@@ -27,7 +27,7 @@ matlab_dir = temp(1:end-1);
 FOV_num = str2double(obj.acqName(4));
 
 % im_date_short = [im_date(1:2),im_date(4:5),im_date(7:8)];
-mat_file_name = sprintf('%s%s%03d\\%s%03d_%s','Z:\HarveyLab\Shin\ShinDataAll\Current Mice\',obj.initials,obj.mouseNum,obj.initials,obj.mouseNum,obj.recDate);
+mat_file_name = sprintf('%s%s%03d\\%s%03d_%s','Z:\HarveyLab\Tier1\Shin\ShinDataAll\Current Mice\',obj.initials,obj.mouseNum,obj.initials,obj.mouseNum,obj.recDate);
 if 1 % FOV_num==1
     mat_file_name = [mat_file_name,'.mat'];
 else
@@ -181,7 +181,7 @@ switch MatlabPulseMode
         
     case 'digital'
         % detecting MATLAB sync pulses
-        file_name = sprintf('%s%s%03d\\%s\\%s_0001.h5','Z:\HarveyLab\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,obj.acqName(1:4));
+        file_name = sprintf('%s%s%03d\\%s\\%s_0001.h5','Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,obj.acqName(1:4));
         if exist(file_name,'file')
             a = ws.loadDataFile(file_name);
             samp_rate = 2e3;
@@ -195,10 +195,10 @@ switch MatlabPulseMode
             SIsig = a.sweep_0001.analogScans(:,pick_SI);
         end
 
-        % file_name = dir(sprintf('%s%s%03d\\%s\\%s_syncData*.mat','Z:\HarveyLab\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,obj.acqName(1:4)));
-        file_name = dir(sprintf('%s%s%03d\\%s\\%s_syncData*.mat','Z:\HarveyLab\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,'FOV1'));
+        % file_name = dir(sprintf('%s%s%03d\\%s\\%s_syncData*.mat','Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,obj.acqName(1:4)));
+        file_name = dir(sprintf('%s%s%03d\\%s\\%s_syncData*.mat','Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,'FOV1'));
         if ~isempty(file_name)
-            file_name = sprintf('%s%s%03d\\%s\\%s','Z:\HarveyLab\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,file_name.name);
+            file_name = sprintf('%s%s%03d\\%s\\%s','Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',obj.initials,obj.mouseNum,obj.recDate,file_name.name);
             if exist(file_name,'file')
                 temp = load(file_name);
                 if isfield(temp,'sync')
@@ -272,7 +272,7 @@ end
 
 %%%%%%%%%%% change the file path of bin files for dF extraction %%%%%%%%%%%
 if 1
-    server_dir = 'Z:\HarveyLab\Shin\ShinDataAll\';
+    server_dir = 'Z:\HarveyLab\Tier2\Shin\ShinDataAll\';
     temp = obj.roiInfo.slice(sliceNum).covFile.fileName;
     ind = strfind(temp,'Imaging');
     obj.roiInfo.slice(sliceNum).covFile.fileName = [server_dir,temp(ind:end)];

@@ -6,10 +6,10 @@ varargin2V(varargin);
 
 if exist('initials','var') && exist('mouseID','var') && exist('date_num','var')
     getComputerName
-    defaultDir = ['Z:\HarveyLab\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouseID),filesep,num2str(date_num),filesep];
+    defaultDir = ['Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouseID),filesep,num2str(date_num),filesep];
 else
     error('Essential variables are missing!')
-    % movDir = uigetdir('Z:\HarveyLab\Shin\ShinDataAll\Imaging\');
+    % movDir = uigetdir('Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\');
     % defaultDir = [movDir,filesep];
 end
 
@@ -90,7 +90,7 @@ end
 %         configure file destinations
 %         ind = strfind(obj.defaultDir,obj.initials);
 %         localDir = ['C:\Users\Shin\Documents\MATLAB\ShinDataAll\Imaging\',obj.defaultDir(ind:end)];
-%         serverDir = ['Z:\HarveyLab\Shin\ShinDataAll\Imaging\',obj.defaultDir(ind:end)];
+%         serverDir = ['Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',obj.defaultDir(ind:end)];
 %         
 %         if ~exist([localDir,'Corrected'],'dir')
 %             mkdir([localDir,'Corrected']);

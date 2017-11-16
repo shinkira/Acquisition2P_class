@@ -72,7 +72,7 @@ switch computerName
         local_SSD_dir = 'G:\';
 end
 
-server_dir = 'Z:\HarveyLab\Shin\ShinDataAll\';
+server_dir = 'Z:\HarveyLab\Tier2\Shin\ShinDataAll\';
 
 temp = acq.roiInfo.slice.covFile.fileName;
 ind = strfind(temp,'Imaging');

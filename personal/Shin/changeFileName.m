@@ -2,7 +2,7 @@ function changeFileName(mouse_num,date_num)
 
 initials = getInitials(mouse_num);
 mouseID = sprintf('%s%03d',initials,mouse_num);
-defaultDir = fullfile('\\research.files.med.harvard.edu\Neurobio\HarveyLab\Shin\ShinDataAll\Imaging',mouseID,num2str(date_num));
+defaultDir = fullfile('\\research.files.med.harvard.edu\Neurobio\HarveyLab\Tier2\Shin\ShinDataAll\Imaging',mouseID,num2str(date_num));
 
 movInfo = dir(fullfile(defaultDir,'*.tif'));
 for mi = 1:length(movInfo)

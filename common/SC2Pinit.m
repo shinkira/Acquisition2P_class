@@ -5,7 +5,7 @@ function SC2Pinit(obj)
 %named after the acquisition name
 
 %Initialize user selection of multiple tif files
-[movNames, movPath] = uigetfile('Z:\HarveyLab\Shin\ShinDataAll\Imaging\*.tif','MultiSelect','on');
+[movNames, movPath] = uigetfile('Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\*.tif','MultiSelect','on');
 % [movNames, movPath] = uigetfile('E:\Imaging\*.tif','MultiSelect','on');
 
 %Set default directory to folder location,
