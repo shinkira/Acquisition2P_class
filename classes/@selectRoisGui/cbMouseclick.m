@@ -121,7 +121,7 @@ end
 % Calculate #cuts and #clusters
 sel.calcClusterProps;
 
-%Update cut display axes
+% Update cut display axes
 existingRoiMask = double(~reshape(sel.disp.roiLabels(pxNeighbors), nh, nh));
 existingRoiMask(existingRoiMask==0) = 0.9;
 for ii = 1:numel(sel.h.img.eig);
