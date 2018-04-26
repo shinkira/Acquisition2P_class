@@ -7,7 +7,7 @@ function SK2Pinit(obj)
 %Initialize user selection of multiple tif files
 space_ind = strfind(obj.acqName,'_');
 movie_header = obj.acqName(space_ind(2)+1:end);
-movInfo = dir([obj.defaultDir,movie_header,'*.tif']);
+movInfo = dir(fullfile(obj.defaultDir,[movie_header,'*.tif']));
 % movInfo = dir([obj.defaultDir,obj.acqName,'*.tif']);
 for mi = 1:length(movInfo)
     movNames{mi} = movInfo(mi).name;
