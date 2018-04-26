@@ -8,7 +8,12 @@ if isempty(acqFileList)
     success = false;
     return
 end
-ajp.currentAcqFileName = acqFileList(1).name;
+if ~isfield(ajp,'mouse_num') || ~isfield(ajp,'date_num')
+    ajp.currentAcqFileName = acqFileList(1).name;
+else
+    acqFileList = dir(fullfile(ajp.dir.jobs,sprintf('%s_%d_FOV_*.mat',ajp.mouseID,ajp.date_num)));
+    ajp.currentAcqFileName = acqFileList(1).name;
+end
 nextFilePath = fullfile(ajp.dir.jobs, ajp.currentAcqFileName);
 
 % Rename file to prevent access by other job processor instance:
