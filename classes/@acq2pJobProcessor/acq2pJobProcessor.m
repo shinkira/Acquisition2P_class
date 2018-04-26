@@ -6,6 +6,9 @@ classdef acq2pJobProcessor < handle
         currentAcq
         currentAcqFileName
         nameFunc
+        mouse_num
+        date_num
+        mouseID
         
     end
     
@@ -15,7 +18,7 @@ classdef acq2pJobProcessor < handle
     
     methods
         % Constructor:
-        function ajp = acq2pJobProcessor(jobDir, debug, isExitAfterOneJob, nameFunc)
+        function ajp = acq2pJobProcessor(jobDir, debug, isExitAfterOneJob, nameFunc, mouse_num, date_num)
             if ~exist('nameFunc','var')
                 ajp.nameFunc = [];
             else
@@ -35,6 +38,10 @@ classdef acq2pJobProcessor < handle
             ajp.dir.error = fullfile(jobDir, 'error');
             
             ajp.logFileName = fullfile(jobDir, 'acqJobLog.txt');
+            
+            ajp.mouse_num = mouse_num;
+            ajp.date_num = date_num;
+            ajp.mouseID = getMouseID(mouse_num);
             
             ajp.run(isExitAfterOneJob);            
         end
