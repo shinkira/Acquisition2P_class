@@ -9,4 +9,4 @@
 #SBATCH -e ~/errs/errs_Acq2P/Acq2P_%A_%a.err   # File to which STDERR will be written, including job ID
 #SBATCH --job-name=Acq2P
 
-matlab -nojvm -nodisplay -r "spmd_test"
+matlab -nodisplay -r "spmd_test"

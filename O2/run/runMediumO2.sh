@@ -9,4 +9,4 @@
 #SBATCH -e ~/errs/errs_Acq2P/Acq2P_%A_%a.err   # File to which STDERR will be written, including job ID
 #SBATCH --job-name=Acq2P
 
-matlab -nojvm -nodisplay -r "o2_execution_engine_glm(${SLURM_ARRAY_JOB_ID}, ${SLURM_ARRAY_TASK_ID}, $1, $2)"
+matlab -nodisplay -r "o2_execution_engine_glm(${SLURM_ARRAY_JOB_ID}, ${SLURM_ARRAY_TASK_ID}, $1, $2)"
