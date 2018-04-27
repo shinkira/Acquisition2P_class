@@ -65,4 +65,11 @@ procFun = str2func(procFunName);
 % fprintf(fid, '%s\t%s\n', procFunName);
 % fclose(fid);
 
-procFun(jobIndex, inputDataFilePath, outputDataFilePath);
+mouseID = getMouseID(mouse_num);
+
+session_info.mouse_num = mouse_num;
+session_info.date_num = date_num;
+session_info.mouseID = mouseID;
+
+
+procFun(jobIndex, inputDataFilePath, outputDataFilePath, session_info);

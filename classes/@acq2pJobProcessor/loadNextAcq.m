@@ -8,20 +8,21 @@ if isempty(acqFileList)
     success = false;
     return
 end
-if ~isfield(ajp,'mouse_num') || ~isfield(ajp,'date_num')
+if ~isprop(ajp,'mouse_num') || ~isprop(ajp,'date_num')
     ajp.currentAcqFileName = acqFileList(1).name;
 else
-    acqFileList = dir(fullfile(ajp.dir.jobs,sprintf('%s_%d_FOV_*.mat',ajp.mouseID,ajp.date_num)));
+    acqFileList = dir(fullfile(ajp.dir.jobs,sprintf('%s_%d_FOV1_*.mat',ajp.mouseID,ajp.date_num)));
     ajp.currentAcqFileName = acqFileList(1).name;
 end
 nextFilePath = fullfile(ajp.dir.jobs, ajp.currentAcqFileName);
+nextFilePathInProgress = fullfile(ajp.dir.inProgress, ajp.currentAcqFileName);
 
 % Rename file to prevent access by other job processor instance:
 % (Use fast java renaming function.)
-randId = num2str(randi(1e10));
-tempFileName = [randId, '_', ajp.currentAcqFileName];
-nextFilePathTemp = fullfile(ajp.dir.jobs, tempFileName);
-java.io.File(nextFilePath).renameTo(java.io.File(nextFilePathTemp));
+% randId = num2str(randi(1e10));
+% tempFileName = [randId, '_', ajp.currentAcqFileName];
+% nextFilePathTemp = fullfile(ajp.dir.jobs, tempFileName);
+% java.io.File(nextFilePath).renameTo(java.io.File(nextFilePathTemp));
 
 % Change the default directory when running on Orchestra
 if 0 %isunix
@@ -35,12 +36,13 @@ end
 if ~exist(ajp.dir.inProgress, 'dir');
     mkdir(ajp.dir.inProgress);
 end
-nextFilePathTempInProgress = fullfile(ajp.dir.inProgress, tempFileName);
-movefile(nextFilePathTemp, nextFilePathTempInProgress);
+% nextFilePathTempInProgress = fullfile(ajp.dir.inProgress, tempFileName);
+movefile(nextFilePath, nextFilePathInProgress);
+nextFilePath = nextFilePathInProgress;
 
 % Rename back to normal name:
-nextFilePath = fullfile(ajp.dir.inProgress, ajp.currentAcqFileName);
-java.io.File(nextFilePathTempInProgress).renameTo(java.io.File(nextFilePath));
+% nextFilePath = fullfile(ajp.dir.inProgress, ajp.currentAcqFileName);
+% java.io.File(nextFilePathTempInProgress).renameTo(java.io.File(nextFilePath));
 
 % Load next acquisition:
 acq = load(nextFilePath); % Load into structure in case variable has weird name.

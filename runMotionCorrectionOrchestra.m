@@ -1,8 +1,9 @@
-function runMotionCorrectionOrchestra(~, ~, ~)
+function runMotionCorrectionOrchestra(~, ~, ~, session_info)
 
 %% Get directory:
 [orchestraBaseDir, ~, ~] = fileparts(which('orchestra_execution_engine_v2'));
-jobsToDo = fullfile(orchestraBaseDir, 'acqsToProcess');
+
+jobsToDo = fullfile('~', 'acqsToProcess');
 
 % If we're on Orchestra, start parallel pool with correct
 % settings:
@@ -15,4 +16,4 @@ jobsToDo = fullfile(orchestraBaseDir, 'acqsToProcess');
 
 %% Run AJP:
 isExitAfterOneJob = true;
-acq2pJobProcessor(jobsToDo, [], isExitAfterOneJob);
+acq2pJobProcessor(jobsToDo, [], isExitAfterOneJob, [], session_info);
