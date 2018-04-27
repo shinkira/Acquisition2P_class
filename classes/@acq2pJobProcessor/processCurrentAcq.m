@@ -27,7 +27,7 @@ if ~all(ajp.currentAcq.motionCorrectionDone)
             ClusterInfo.setWallTime('36:00'); % 20 hour
             ClusterInfo.setMemUsage('4000')
             ClusterInfo.setQueueName('mpi')
-            parpool(12)
+            parpool(4)
         end
 	
         ajp.log('Started motion correction.');
