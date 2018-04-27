@@ -97,7 +97,7 @@ theI = (eye(nBasis+1, 'like', stackFull)*lambda);
 
 [xi,yi] = meshgrid(1:w, 1:h);
 
-spmd
+% spmd
     z = size(stack, 3);
     
     % First, we use a parfor loop to quickly calculate the initial block
@@ -153,7 +153,7 @@ spmd
             end
         end
     end
-end
+% end
 
 % Retrieve aligned data:
 if isGpu
