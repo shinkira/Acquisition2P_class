@@ -23,7 +23,7 @@ if ~all(ajp.currentAcq.motionCorrectionDone)
 	
         % If we're on Orchestra, start parallel pool with correct
         % settings:
-        if 0 % isunix && ~isempty(gcp('nocreate'))
+        if isunix && ~isempty(gcp('nocreate'))
             ClusterInfo.setWallTime('36:00'); % 20 hour
             ClusterInfo.setMemUsage('4000')
             ClusterInfo.setQueueName('mpi')
@@ -36,7 +36,7 @@ if ~all(ajp.currentAcq.motionCorrectionDone)
         
         % If we're on Orchestra, we should close the parallel pool to
         % reduce memory usage:
-        if 0 % isunix
+        if isunix
             poolobj = gcp('nocreate');
             delete(poolobj);
         end
