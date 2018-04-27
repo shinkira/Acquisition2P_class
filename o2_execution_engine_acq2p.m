@@ -31,9 +31,9 @@ inputName = 'runMotionCorrectionOrchestra';
 
 %% Set path:
 [orchestraBaseDir, ~, ~] = fileparts(which(mfilename));
-addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'helperFunctions')));
-addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'Acquisition2P_class')));
-addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'NMF-Source-Extraction')));
+% addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'helperFunctions')));
+% addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'Acquisition2P_class')));
+% addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'NMF-Source-Extraction')));
 
 % Code files controling job execution are stored in the INPUT folder, so
 % add that too:
