@@ -44,7 +44,7 @@ if ~exist('writeDir', 'var') || isempty(writeDir) %Use Corrected in Default Dire
     if isempty(obj.defaultDir)
         error('Default Directory unspecified'),
     else
-        writeDir = [obj.defaultDir,'Corrected'];
+        writeDir = fullfile(obj.defaultDir,'Corrected');
     end
 end
 
