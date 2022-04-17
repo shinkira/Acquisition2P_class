@@ -7,7 +7,7 @@ end
 [h, w, z] = size(mov);
 referenceFrame = imref2d([h, w]);
 
-parfor f = 1:z
+for f = 1:z
 %     if mod(f,250)==0
 %         display(sprintf('Applying frame shift %d of %d',f,z)),
 %     end

@@ -6,7 +6,7 @@ end
 
 % Check for scanimage version before extracting metainformation
 if isfield(siStruct, 'VERSION_MAJOR') && ...
-        (strcmp(siStruct.VERSION_MAJOR, '2016') || strcmp(siStruct.VERSION_MAJOR, '2016b'))
+        (strcmp(siStruct.VERSION_MAJOR, '2016') || strcmp(siStruct.VERSION_MAJOR, '2016b')) || strcmp(siStruct.VERSION_MAJOR, '2017b')
     % SI2016 tiff that was loaded using the new SI tiff reader:
     fZ              = siStruct.hFastZ.enable;
     nChannels       = numel(siStruct.hChannels.channelSave);

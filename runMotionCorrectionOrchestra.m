@@ -1,9 +1,13 @@
-function runMotionCorrectionOrchestra(~, ~, ~, session_info)
+function runMotionCorrectionOrchestra(jobIndex, inputDataFilePath, outputDataFilePath, session_info)
 
 %% Get directory:
-[orchestraBaseDir, ~, ~] = fileparts(which('orchestra_execution_engine_v2'));
-
-jobsToDo = fullfile('~', 'acqsToProcess');
+if isunix
+    orchestraBaseDir = fileparts(inputDataFilePath);
+    jobsToDo = fullfile(orchestraBaseDir, 'acqsToProcess');
+else
+    [orchestraBaseDir, ~, ~] = fileparts(which('orchestra_execution_engine_v2'));
+    jobsToDo = fullfile('~', 'acqsToProcess');
+end
 
 % If we're on Orchestra, start parallel pool with correct
 % settings:

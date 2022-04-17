@@ -42,6 +42,7 @@ classdef acq2pJobProcessor < handle
             ajp.mouse_num = session_info.mouse_num;
             ajp.date_num = session_info.date_num;
             ajp.mouseID = session_info.mouseID;
+            ajp.dir.tiff = fullfile(jobDir,'..','..',ajp.mouseID,num2str(ajp.date_num));
             
             ajp.run(isExitAfterOneJob);            
         end

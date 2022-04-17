@@ -65,10 +65,16 @@ dpyAl = cell2mat(dpyAl);
 end
 
 function [aligned, dpxAl, dpyAl, B] = doLucasKanadeSPMD_chunk(stackFull, ref, isGpu)
-stack = Composite();
-nWorkers = numel(stack);
-for i = 1:nWorkers
-   stack{i} = stackFull(:,:,i:nWorkers:end);
+
+if 0
+    stack = Composite();
+    nWorkers = numel(stack);
+    for i = 1:nWorkers
+       stack{i} = stackFull(:,:,i:nWorkers:end);
+    end
+else
+    nWorkers = 1;
+    stack = stackFull;
 end
 
 % Parameters:
@@ -97,7 +103,7 @@ theI = (eye(nBasis+1, 'like', stackFull)*lambda);
 
 [xi,yi] = meshgrid(1:w, 1:h);
 
-spmd
+% spmd
     z = size(stack, 3);
     
     % First, we use a parfor loop to quickly calculate the initial block
@@ -153,7 +159,7 @@ spmd
             end
         end
     end
-end
+% end
 
 % Retrieve aligned data:
 if isGpu
@@ -163,10 +169,17 @@ stack = gather(stack);
 aligned = zeros(size(stackFull), 'like', stackFull);
 dpxAl = zeros(nBasis+1, size(stackFull, 3), 'like', stackFull);
 dpyAl = zeros(nBasis+1, size(stackFull, 3), 'like', stackFull);
-for i = 1:nWorkers
-    aligned(:,:,i:nWorkers:end) = stack{i};
-    dpxAl(:,i:nWorkers:end) = dpx{i};
-    dpyAl(:,i:nWorkers:end) = dpy{i};
+
+if nWorkers>1
+    for i = 1:nWorkers
+        aligned(:,:,i:nWorkers:end) = stack{i};
+        dpxAl(:,i:nWorkers:end) = dpx{i};
+        dpyAl(:,i:nWorkers:end) = dpy{i};
+    end
+else
+    aligned(:,:,1:end) = stack;
+    dpxAl(:,1:end) = dpx;
+    dpyAl(:,1:end) = dpy;
 end
 
 fprintf(' Done.\n');
