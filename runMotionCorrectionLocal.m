@@ -3,8 +3,8 @@ function runMotionCorrectionLocal
     root = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\ImagingNew\BatchAcqObj';
     
     mouse_set = [111];
-    date_set = [240613,240617];
-    acq_set = {{'FOV3_00001','FOV3_00002'},{'FOV3_00001','FOV3_00002'}};
+    date_set = [240709];
+    acq_set = {{'FOV4_00001','FOV4_00002','FOV5_00001'}};
     initials = 'SK';
     k = 1;
     for mi = 1:length(mouse_set)
