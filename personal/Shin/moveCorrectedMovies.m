@@ -10,8 +10,8 @@ function moveCorrectedMovies
         date_set = [240613,240617];
         acq_set = {{'FOV3_00001','FOV3_00002'},{'FOV3_00001','FOV3_00002'}};
     else
-        date_set = [240626];
-        acq_set = {{'FOV4_00001'}};
+        date_set = [240709];
+        acq_set = {{'FOV4_00001','FOV4_00002','FOV5_00001'}};
     end
     
     initials = 'SK';
@@ -52,7 +52,7 @@ function moveFiles(mouse_num, date_num, acq_name)
         path_from = fullfile(data_dir,f_name);
         path_to   = fullfile(data_subdir,f_name);
         [STATUS,MESSAGE,MESSAGEID] = movefile(path_from,path_to);
-        if STATUS
+        if STATr
             fprintf('Moved %s\n',f_name)
         else
             error('Failed to move %s\n',f_name)
