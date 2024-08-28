@@ -63,14 +63,39 @@ function register_static_image
     if 1
         clim = [0 1000];
         figure(1);clf;
-        subplot(2,3,1); imagesc(mean_image_1, clim); axis equal; title('Movie 1 Mean Image');
-        subplot(2,3,2); imagesc(aligned_nc{1}{2}, clim); axis equal; title('Non-rigid Aligned (Movie 1 -> Movie 2)');
-        subplot(2,3,3); imagesc(aligned_rigid{1}{2}, clim); axis equal; title('Rigid Aligned (Movie 1 -> Movie 2)');
-        subplot(2,3,4); imagesc(mean_image_2, clim); axis equal; title('Movie 2 Mean Image');
-        subplot(2,3,5); imagesc(aligned_nc{2}{2}, clim); axis equal; title('Non-rigid Aligned (Movie 2 -> Movie 1)');
-        subplot(2,3,6); imagesc(aligned_rigid{2}{2}, clim); axis equal; title('Rigid Aligned (Movie 2 -> Movie 1)');
+        subplot(2,3,1); imagesc(mean_image_1, clim); axis equal; title('Movie 1 Mean Image');colorbar;
+        subplot(2,3,2); imagesc(aligned_nc{1}{2}, clim); axis equal; title('Non-rigid Aligned (Movie 1 -> Movie 2)');colorbar;
+        subplot(2,3,3); imagesc(aligned_rigid{1}{2}, clim); axis equal; title('Rigid Aligned (Movie 1 -> Movie 2)');colorbar;
+        subplot(2,3,4); imagesc(mean_image_2, clim); axis equal; title('Movie 2 Mean Image');colorbar;
         colormap('gray');
+        image_diff_nc    = mean_image_2./aligned_nc{1}{2};
+        image_diff_rigid = mean_image_2./aligned_rigid{1}{2};
+        
+        image_diff_nc(image_diff_nc<1e-8) = 1e-8;
+        image_diff_rigid(image_diff_rigid<1e-8) = 1e-8;
+        log_image_diff_nc = log(image_diff_nc);
+        log_image_diff_rigid = log(image_diff_rigid);
+        
+        subplot(2,3,5); imagesc(log_image_diff_nc,[-3 3]); axis equal; title('Non-rigid diff (Movie 1 -> Movie 2)');colorbar;
+        subplot(2,3,6); imagesc(log_image_diff_rigid,[-3 3]); axis equal; title('Rigid diff (Movie 1 -> Movie 2)');colorbar;
+        colormap('parula');
+        % colormap('gray');
     end
+    
+    figure(3);clf;
+    set(gcf,'OuterPosition',[700 200 800 800])
+    imagesc(mean_image_2, clim); axis equal; title('Movie 2 Mean Image');colorbar;
+    axis([0 512 0 512])
+    colormap('gray');
+    export_fig(gcf,['mean_image_2','.jpg'],'-jpg','-nocrop');
+    
+    figure(4);clf;
+    set(gcf,'OuterPosition',[700 200 800 800])
+    imagesc(aligned_nc{1}{2}, clim); axis equal; title('Non-rigid Aligned (Movie 1 -> Movie 2)');colorbar;
+    axis([0 512 0 512])
+    colormap('gray');
+    export_fig(gcf,['mean_image_1','.jpg'],'-jpg','-nocrop');
+    
     
     figure(10);clf;
     set(gcf,'OuterPosition',[700 200 800 800])
