@@ -6,7 +6,7 @@ end
 
 % Check for scanimage version before extracting metainformation
 if isfield(siStruct, 'VERSION_MAJOR') && ...
-        (strcmp(siStruct.VERSION_MAJOR, '2016') || strcmp(siStruct.VERSION_MAJOR, '2016b'))
+        (strcmp(siStruct.VERSION_MAJOR, '2016') || strcmp(siStruct.VERSION_MAJOR, '2016b')) || strcmp(siStruct.VERSION_MAJOR, '2017b')
     % SI2016 tiff that was loaded using the new SI tiff reader:
     fZ              = siStruct.hFastZ.enable;
     nChannels       = numel(siStruct.hChannels.channelSave);
@@ -16,6 +16,16 @@ if isfield(siStruct, 'VERSION_MAJOR') && ...
         nSlices     = 1;
     end
     siStruct.fastZDiscardFlybackFrames = siStruct.hFastZ.discardFlybackFrames;
+elseif isfield(siStruct, 'VERSION_MAJOR') && siStruct.VERSION_MAJOR==2023
+    fZ              = siStruct.hFastZ.enable;
+    nChannels       = numel(siStruct.hChannels.channelSave);
+    if fZ
+        nSlices     = siStruct.hFastZ.numFramesPerVolume; % Slices are acquired at different locations (e.g. depths).
+    else
+        nSlices     = 1;
+    end
+    siStruct.fastZDiscardFlybackFrames = siStruct.hFastZ.discardFlybackFrames;
+    
 elseif isfield(siStruct, 'SI4')
     siStruct = siStruct.SI4;
     % Nomenclature: frames and slices refer to the concepts used in

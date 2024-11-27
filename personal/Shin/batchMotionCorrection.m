@@ -6,7 +6,8 @@ varargin2V(varargin);
 
 if exist('initials','var') && exist('mouseID','var') && exist('date_num','var')
     getComputerName
-    defaultDir = ['Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouseID),filesep,num2str(date_num),filesep];
+    defaultDir = ['Z:\HarveyLab\Tier1\Shin\ShinDataAll\Imaging\',initials,sprintf('%03d',mouseID),filesep,num2str(date_num),filesep];
+    jobDir = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\Imaging\input\acqsToProcess';
 else
     error('Essential variables are missing!')
     % movDir = uigetdir('Z:\HarveyLab\Tier2\Shin\ShinDataAll\Imaging\');
@@ -35,7 +36,7 @@ for fi = 1:length(FOV_list)
     
     % create obj
     obj = Acquisition2P([FOV_name],@SK2Pinit,defaultDir);
-    obj.save
+    obj.save(jobDir)
     return
     
     % overwrite motion correction function

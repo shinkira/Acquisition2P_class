@@ -31,8 +31,13 @@ switch opMode
             ref = single(ref);
             
             % Find within-frame displacements:
-            [movTemp, dpx, dpy, basisFunctions] = ...
-                doLucasKanadeSPMD(single(movTemp), ref);
+            if 1
+                [movTemp, dpx, dpy, basisFunctions] = ...
+                    doLucasKanadeSPMD(single(movTemp), ref);
+            else
+                [movTemp, dpx, dpy, basisFunctions] = ...
+                    doLucasKanade(single(movTemp), ref);
+            end
             
             % Combine full-frame and within-frame displacements:
             dpx = bsxfun(@minus, dpx, xTrans);

@@ -1,4 +1,4 @@
-% #!/bin/bash
+#!/bin/bash
 
 #SBATCH -n 1                               # Request one core
 #SBATCH -N 1                               # Request one node
@@ -9,4 +9,4 @@
 #SBATCH -e errs/errs_Acq2P/Acq2P_%A_%a.err   # File to which STDERR will be written, including job ID
 #SBATCH --job-name=Acq2P
 
-matlab -nodisplay -r "o2_execution_engine_acq2p(${SLURM_ARRAY_JOB_ID}, ${SLURM_ARRAY_TASK_ID}, $1, $2)"
+matlab -nodisplay -r "o2_execution_engine_acq2p_test(${SLURM_ARRAY_JOB_ID}, ${SLURM_ARRAY_TASK_ID}, $1, $2)"

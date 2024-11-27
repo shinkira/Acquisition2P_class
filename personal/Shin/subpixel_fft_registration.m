@@ -1,39 +1,37 @@
-function [xshifts, yshifts] = track_subpixel_wholeframe_motion_fft_forloop(movref, refframe)
+function [corrected, xshift, yshift] = subpixel_fft_registration(moving, ref, isRefPrecalcd, movingFullSize)
+% Translate a single frame to match a reference, using subpixel FFT
+% registration.
 
-%save the size of the movie
-z = size(movref, 3);
-
-xshifts=zeros(1,z);
-yshifts=zeros(1,z);
-
-if 1
-    % remove the lateral dark areas
-    numPix2Remove = 32;
-    pick = numPix2Remove+1:size(movref,2)-numPix2Remove;
-    movref = movref(:,pick,:);
-    refframe = refframe(:,pick,:);
+if nargin < 4
+    movingFullSize = moving;
 end
 
-% It is safer to use the square root of the fluorescence intensities to
-% minimize the effect of bright calcium transients. Not necessary if a
-% non-calcium-dependent channel is used:
-% refframe = sqrt(refframe);
-% movref = sqrt(movref);
-
-% Pre-calculate variables based on reference frame:
-ref_ftt = fft2(refframe);
-ref_fftshift = fftshift(ref_ftt);
-ref_conj = conj(ref_ftt);
-upsamplingFac = 50;
-
-for f = 1:z
-%     if mod(f,250)==0
-%         display(sprintf('Identifying Shift for Frame %04.0f of %04.0f',f,z)),
-%     end
-    output = dftregistration(fft2(movref(:,:,f)), ref_ftt, ref_fftshift, ref_conj, upsamplingFac);
-    xshifts(f) = output(4);
-    yshifts(f) = output(3);
+% Find shifts:
+if nargin<3 || ~isRefPrecalcd
+    ref_fft = zeros(size(ref, 1), size(ref, 2), 3);
+    ref_fft(:,:,1) = fft2(ref);
+    ref_fft(:,:,2) = fftshift(ref_fft(:,:,1));
+    ref_fft(:,:,3) = conj(ref_fft(:,:,1));
+else
+    ref_fft = ref;
 end
+
+upsamplingFac = 50; % This needs to be >= 50 for accurate widefield results.
+output = dftregistration(fft2(moving), ref_fft(:,:,1), ref_fft(:,:,2), ref_fft(:,:,3), upsamplingFac);
+xshift = output(4);
+yshift = output(3);
+
+% Translate:
+% tformMat = eye(3);
+% tformMat(3, 1) = xshift;
+% tformMat(3, 2) = yshift;
+% tform = affine2d(tformMat);
+% 
+% corrected = imwarp(movingFullSize, tform, ...
+%     'OutputView', imref2d(size(movingFullSize)), 'FillValues', 0); 
+
+[h, w] = size(movingFullSize);
+corrected = interp2(movingFullSize, (1:w)-xshift, ((1:h)-yshift)', 'linear', 0);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

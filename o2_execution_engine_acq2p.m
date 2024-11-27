@@ -30,7 +30,8 @@ end
 inputName = 'runMotionCorrectionOrchestra';
 
 %% Set path:
-[orchestraBaseDir, ~, ~] = fileparts(which(mfilename));
+% [orchestraBaseDir, ~, ~] = fileparts(which(mfilename));
+orchestraBaseDir = '/n/scratch3/users/s/sk574';
 % addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'helperFunctions')));
 % addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'Acquisition2P_class')));
 % addpath(genpath(fullfile(orchestraBaseDir, 'Imaging', 'NMF-Source-Extraction')));

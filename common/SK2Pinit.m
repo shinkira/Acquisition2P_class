@@ -42,6 +42,7 @@ if isempty(obj.acqName)
 end
 
 ind = strfind(obj.defaultDir,'Imaging');
+ind = ind+3;
 obj.initials = obj.defaultDir(ind+8:ind+9);
 obj.mouseNum = str2double(obj.defaultDir(ind+10:ind+12));
 obj.recDate = obj.defaultDir(ind+14:ind+19);

@@ -10,6 +10,10 @@ function save(obj,writeDir,writeName,varName)
 
 if ~exist('writeDir','var') || isempty(writeDir)
     writeDir = obj.defaultDir;
+else
+    if ~exist(writeDir,'dir')
+        mkdir(writeDir);
+    end
 end
 
 % computerName = getComputerName;
