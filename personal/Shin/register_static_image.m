@@ -2,10 +2,15 @@ function register_static_image
 
     %% Load movie_1 and movie_2 from TIFF files
 
-    if 0
+    if 1
         % Specify the file paths for the TIFF files
-        movie_1_tiff = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\ImagingNew\SK113\240812\FOV3_00004_00001.tif';
-        movie_2_tiff = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\ImagingNew\SK113\240816\FOV3_00002_00001.tif';
+        if 0
+            movie_1_tiff = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\ImagingNew\SK113\240812\FOV3_00004_00001.tif';
+            movie_2_tiff = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\ImagingNew\SK113\240816\FOV3_00002_00001.tif';
+        else
+            movie_1_tiff = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\ImagingNew\SK113\240816\FOV4_200um_00004_00001.tif';
+            movie_2_tiff = 'Z:\HarveyLab\Tier1\Shin\ShinDataAll\ImagingNew\SK113\240820\FOV4_00001_00001.tif';
+        end
 
         % Load the TIFF files into 3D matrices
         castType = 'int16';
@@ -19,10 +24,11 @@ function register_static_image
 
         mean_image_1 = mean(movie_1, 3); % Calculate mean across time (3rd dimension)
         mean_image_2 = mean(movie_2, 3); % Same for movie_2
+        temp_dir = 'C:\Users\Shin\Documents\GitHub\Acquisition2P_class\personal\Shin\data';
 
-        save('mean_image.mat','mean_image_1','mean_image_2');
+        save(fullfile(temp_dir,'mean_image.mat'),'mean_image_1','mean_image_2');
     else
-        load('mean_image.mat','mean_image_1','mean_image_2');
+        load(fullfile(temp_dir,'mean_image.mat'),'mean_image_1','mean_image_2');
     end
 
     %% Non-rigid and rigid registration for movie_1 and movie_2 mean images
