@@ -1,4 +1,4 @@
-#!/bin/bash
+% #!/bin/bash
 
 #SBATCH -n 1                               # Request one core
 #SBATCH -N 1                               # Request one node
